@@ -1,17 +1,20 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "app": {
-      "root": ".",
-      "dockerfile": "Dockerfile"
+  "functions": {
+    "api-version1/**/*.php": {
+      "runtime": "vercel-php@0.5.2"
     }
   },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api-version1/index.php"
+    }
+  ],
   "rewrites": [
     {
       "source": "/((?!data|logs|artifacts).*)",
-      "destination": {
-        "service": "app"
-      }
+      "destination": "/api-version1/index.php"
     }
   ],
   "headers": [
