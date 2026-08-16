@@ -1,42 +1,21 @@
 FROM php:8.2-apache
 
-# Enable required Apache modules
-RUN a2enmod rewrite headers
+# Enable Apache modules
+RUN a2enmod rewrite
 
-# Set working directory
-WORKDIR /var/www/html
+# Copy application to web root
+COPY api-version1/ /var/www/html/
 
-# Copy application code
-COPY api-version1/ .
+# Set directory permissions
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html
+# Configure Apache DocumentRoot and virtual host
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html|g' /etc/apache2/sites-available/000-default.conf && \
+    sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/c\\t<Directory /var/www/html>\n\t\tOptions Indexes FollowSymLinks\n\t\tAllowOverride All\n\t\tRequire all granted\n\t</Directory>' /etc/apache2/apache2.conf
 
-# Configure Apache to listen on PORT env var and handle routing
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-ENV APACHE_LOG_DIR /var/log/apache2
-ENV APACHE_PID_FILE /var/run/apache2.pid
-ENV APACHE_RUN_DIR /var/run/apache2
-ENV APACHE_LOCK_DIR /var/lock/apache2
-
-# Create Apache config for routing
-RUN echo '<Directory /var/www/html>' > /etc/apache2/sites-available/000-default.conf && \
-    echo '    Options Indexes FollowSymLinks' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '    AllowOverride All' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '    Require all granted' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '    <IfModule mod_rewrite.c>' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '        RewriteEngine On' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '        RewriteBase /' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '        RewriteCond %{REQUEST_FILENAME} !-f' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '        RewriteCond %{REQUEST_FILENAME} !-d' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '        RewriteRule ^(.*)$ index.php [QSA,L]' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '    </IfModule>' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '</Directory>' >> /etc/apache2/sites-available/000-default.conf && \
-    echo 'DocumentRoot /var/www/html' >> /etc/apache2/sites-available/000-default.conf
-
-# Expose port (Render will set PORT env var)
+# Expose port 8080 (Render uses dynamic PORT but defaults to 8080)
 EXPOSE 8080
 
-# Start Apache
+# Start Apache in foreground
 CMD ["apache2ctl", "-D", "FOREGROUND"]
