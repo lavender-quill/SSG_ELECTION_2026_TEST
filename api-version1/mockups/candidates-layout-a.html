@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Layout A — College Accordion</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+  .topbar{background:#1e293b;border-bottom:1px solid #334155;padding:14px 28px;display:flex;align-items:center;gap:14px}
+  .topbar h1{font-size:16px;font-weight:700;color:#f8fafc}
+  .topbar .badge{background:#7c3aed;color:#fff;font-size:11px;padding:3px 10px;border-radius:99px;font-weight:600}
+  .topbar .sub{font-size:12px;color:#94a3b8;margin-left:auto}
+  .container{max-width:1100px;margin:0 auto;padding:28px 24px}
+  .page-title{font-size:22px;font-weight:800;color:#f8fafc;margin-bottom:6px}
+  .page-sub{font-size:13px;color:#94a3b8;margin-bottom:24px}
+  .stats-row{display:flex;gap:12px;margin-bottom:28px}
+  .stat{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:14px 18px;flex:1;text-align:center}
+  .stat .num{font-size:24px;font-weight:800;color:#7c3aed}
+  .stat .lbl{font-size:11px;color:#94a3b8;margin-top:2px}
+  .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .btn-primary{background:#7c3aed;color:#fff}
+  .btn-outline{background:transparent;color:#94a3b8;border:1px solid #334155}
+  .search{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:8px 14px;color:#e2e8f0;font-size:13px;width:240px;outline:none}
+  .accordion{display:flex;flex-direction:column;gap:12px}
+  .college-card{background:#1e293b;border:1px solid #334155;border-radius:12px;overflow:hidden}
+  .college-header{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;user-select:none}
+  .college-header:hover{background:#243044}
+  .college-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+  .college-name{font-size:14px;font-weight:700;color:#f1f5f9;flex:1}
+  .college-count{font-size:12px;color:#94a3b8;margin-right:8px}
+  .college-chevron{color:#64748b;font-size:12px;transition:transform .2s}
+  .college-card.open .college-chevron{transform:rotate(180deg)}
+  .college-body{display:none;border-top:1px solid #334155}
+  .college-card.open .college-body{display:block}
+  .candidate-table{width:100%;border-collapse:collapse}
+  .candidate-table th{padding:10px 16px;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;text-align:left;background:#16213a;border-bottom:1px solid #334155}
+  .candidate-table td{padding:12px 16px;font-size:13px;color:#cbd5e1;border-bottom:1px solid #1e293b}
+  .candidate-table tr:last-child td{border-bottom:none}
+  .candidate-table tr:hover td{background:#1a2842}
+  .badge-approved{background:#064e3b;color:#34d399;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+  .badge-pending{background:#451a03;color:#fb923c;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+  .add-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid #334155;background:#131d2e}
+  .add-row input{background:#0f172a;border:1px solid #334155;border-radius:6px;padding:7px 12px;color:#e2e8f0;font-size:13px;flex:1;outline:none}
+  .add-row select{background:#0f172a;border:1px solid #334155;border-radius:6px;padding:7px 12px;color:#e2e8f0;font-size:13px;outline:none}
+  .btn-add-sm{background:#7c3aed;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .avatar{width:28px;height:28px;border-radius:50%;background:#334155;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#94a3b8;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span style="font-size:20px">🎓</span>
+  <h1>Candidates</h1>
+  <span class="badge">A.Y. 2026–2027</span>
+  <span class="sub">Grouped by College · 3 of 6 open</span>
+</div>
+<div class="container">
+  <div class="page-title">Manage Candidates</div>
+  <div class="page-sub">Each college is a collapsible section. Expand to view or add candidates within that college.</div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="num">24</div><div class="lbl">Total Registered</div></div>
+    <div class="stat"><div class="num" style="color:#34d399">18</div><div class="lbl">Approved</div></div>
+    <div class="stat"><div class="num" style="color:#fb923c">4</div><div class="lbl">Pending</div></div>
+    <div class="stat"><div class="num" style="color:#f87171">2</div><div class="lbl">Denied</div></div>
+  </div>
+
+  <div class="toolbar">
+    <input class="search" placeholder="🔍  Search candidates…" />
+    <button class="btn btn-outline">Filter by Status ▾</button>
+    <button class="btn btn-outline">Filter by Position ▾</button>
+    <button class="btn btn-primary" style="margin-left:auto">+ Register Candidate</button>
+  </div>
+
+  <div class="accordion">
+
+    <!-- CCS -->
+    <div class="college-card open">
+      <div class="college-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="college-dot" style="background:#818cf8"></div>
+        <span class="college-name">College of Computing Studies (CCS)</span>
+        <span class="college-count">6 candidates</span>
+        <span class="college-chevron">▼</span>
+      </div>
+      <div class="college-body">
+        <table class="candidate-table">
+          <thead><tr><th>#</th><th>Student ID</th><th>Name</th><th>Position</th><th>Slate</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><span style="font-family:monospace;font-size:12px">22-A-00351</span></td><td><span class="avatar">JD</span>Juan dela Cruz</td><td>President</td><td>Bukas</td><td><span class="badge-approved">Approved</span></td><td><button class="btn btn-outline" style="padding:4px 10px;font-size:11px">⋮</button></td></tr>
+            <tr><td>2</td><td><span style="font-family:monospace;font-size:12px">22-A-00412</span></td><td><span class="avatar">MA</span>Maria Santos</td><td>Vice President</td><td>Bukas</td><td><span class="badge-approved">Approved</span></td><td><button class="btn btn-outline" style="padding:4px 10px;font-size:11px">⋮</button></td></tr>
+            <tr><td>3</td><td><span style="font-family:monospace;font-size:12px">23-A-00181</span></td><td><span class="avatar">RP</span>Rico Puno</td><td>Senator</td><td>Tapang</td><td><span class="badge-pending">Pending</span></td><td><button class="btn btn-outline" style="padding:4px 10px;font-size:11px">⋮</button></td></tr>
+          </tbody>
+        </table>
+        <div class="add-row">
+          <input placeholder="Student ID  e.g. 24-A-00123"/>
+          <select><option>— Select Position —</option><option>President</option><option>VP</option><option>Senator</option></select>
+          <select><option>— Slate —</option><option>Bukas</option><option>Tapang</option></select>
+          <button class="btn-add-sm">+ Add to CCS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CED -->
+    <div class="college-card open">
+      <div class="college-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="college-dot" style="background:#34d399"></div>
+        <span class="college-name">College of Education (CED)</span>
+        <span class="college-count">5 candidates</span>
+        <span class="college-chevron">▼</span>
+      </div>
+      <div class="college-body">
+        <table class="candidate-table">
+          <thead><tr><th>#</th><th>Student ID</th><th>Name</th><th>Position</th><th>Slate</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><span style="font-family:monospace;font-size:12px">22-B-00210</span></td><td><span class="avatar">AL</span>Ana Lim</td><td>Senator</td><td>Kasama</td><td><span class="badge-approved">Approved</span></td><td><button class="btn btn-outline" style="padding:4px 10px;font-size:11px">⋮</button></td></tr>
+            <tr><td>2</td><td><span style="font-family:monospace;font-size:12px">23-B-00095</span></td><td><span class="avatar">BG</span>Ben Garcia</td><td>Senator</td><td>Kasama</td><td><span class="badge-pending">Pending</span></td><td><button class="btn btn-outline" style="padding:4px 10px;font-size:11px">⋮</button></td></tr>
+          </tbody>
+        </table>
+        <div class="add-row">
+          <input placeholder="Student ID  e.g. 24-B-00123"/>
+          <select><option>— Select Position —</option><option>Senator</option></select>
+          <select><option>— Slate —</option><option>Kasama</option><option>Bukas</option><option>Tapang</option></select>
+          <button class="btn-add-sm">+ Add to CED</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CBE collapsed -->
+    <div class="college-card">
+      <div class="college-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="college-dot" style="background:#fb923c"></div>
+        <span class="college-name">College of Business &amp; Entrepreneurship (CBE)</span>
+        <span class="college-count">4 candidates</span>
+        <span class="college-chevron">▼</span>
+      </div>
+      <div class="college-body">
+        <div class="add-row" style="border-top:none">
+          <input placeholder="Student ID"/><select><option>— Position —</option></select><select><option>— Slate —</option></select>
+          <button class="btn-add-sm">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COAS collapsed -->
+    <div class="college-card">
+      <div class="college-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="college-dot" style="background:#f472b6"></div>
+        <span class="college-name">College of Arts &amp; Sciences (COAS)</span>
+        <span class="college-count">3 candidates</span>
+        <span class="college-chevron">▼</span>
+      </div>
+      <div class="college-body"></div>
+    </div>
+
+    <!-- CN collapsed -->
+    <div class="college-card">
+      <div class="college-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="college-dot" style="background:#38bdf8"></div>
+        <span class="college-name">College of Nursing (CN)</span>
+        <span class="college-count">3 candidates</span>
+        <span class="college-chevron">▼</span>
+      </div>
+      <div class="college-body"></div>
+    </div>
+
+    <!-- CE collapsed -->
+    <div class="college-card">
+      <div class="college-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="college-dot" style="background:#facc15"></div>
+        <span class="college-name">College of Engineering (CE)</span>
+        <span class="college-count">3 candidates</span>
+        <span class="college-chevron">▼</span>
+      </div>
+      <div class="college-body"></div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

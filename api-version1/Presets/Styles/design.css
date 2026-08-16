@@ -1,0 +1,49 @@
+
+/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/ 
+.WebTitle {text-align:left;  font-family: 'Poppins'; font-size: 42px;  font-weight: bold; color:#000088; text-shadow: -1px -1px #FF5733, 1px 1px #FF5733; }
+.WebSubTitle1 {text-align:left;  font-family: 'Poppins'; font-size: 24px;  color:#001188;  text-shadow: -1px -1px #FF5733, 1px 1px #FF5733; }
+.WebSubTitle2 {text-align:left;  font-family: 'Poppins'; font-size: 18px;  color:#001188;   text-shadow: -1px -1px #FF5733, 1px 1px #FF5733; }
+.WebFooter1   {text-align:left;  font-family: 'Poppins'; font-size: 10px;  color:#C1C1C4; }
+.WebFooter2   {text-align:left;  font-family: 'Poppins'; font-size: 13px;  color:#FFFFFF; }
+
+.WebLabel   {text-align:left;  font-family: 'Poppins'; font-size: 16px;  color:#000002; }
+.WebValue   {text-align:left;  font-family: 'Poppins', monospace; font-size: 16px;  color:#000000; }
+.UserFont   {text-align:left;  font-family: 'Poppins'; font-size: 16px;  color:#000099; }
+/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+.FadeDarkBlue-A{ background: #004797;
+				   background: -webkit-linear-gradient(bottom, #004691 30%,#0057B7 70%);
+				   background: -moz-linear-gradient(bottom, #004691 30%,#0057B7 70%);
+				   background: -o-linear-gradient(bottom, #004691 30%,#0057B7 70%);
+				   background: -ms-linear-gradient(bottom, #004691 30%,#0057B7 70%);
+				   background: linear-gradient(bottom, #004691 30%,#0057B7 70%);
+				   }
+.FadeDarkBlue-B{ background: #004797;
+				   background: -webkit-linear-gradient(top, #004691 30%,#0057B7 70%);
+				   background: -moz-linear-gradient(top, #004691 30%,#0057B7 70%);
+				   background: -o-linear-gradient(top, #004691 30%,#0057B7 70%);
+				   background: -ms-linear-gradient(top, #004691 30%,#0057B7 70%);
+				   background: linear-gradient(top, #004691 30%,#0057B7 70%);
+				   }
+
+/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/ 				   
+.Roundbox { position:relative; border:1px solid #B5B4C1; width:98%; left:2px;
+            margin-left:3px; margin-right:4px; margin-top:3px; margin-bottom:1px; padding:0px;
+  
+  
+  -moz-border-radius: 4px; /* Firefox */
+  -webkit-border-radius: 4px; /* Safari and Chrome */
+  o-border-radius: 4px; /* Opera 10.5+, future browsers, and now also Internet Explorer 6+ using IE-CSS3 */
+   border-radius: 4px; /* Opera 10.5+, future browsers, and now also Internet Explorer 6+ using IE-CSS3 */
+   rounded-corner:4px;
+ 
+  -moz-box-shadow: 0px 1px 1px 1px #000; /* Firefox */
+  -webkit-box-shadow: 0px 1px 1px 1px #000; /* Safari and Chrome */
+  box-shadow: 0px 1px 1px 1px #000; /* Opera 10.5+, future browsers and IE6+ using IE-CSS3 */
+  drop-shadow: 0px 1px 1px 1px #000;
+  background-color: #fff;  zoom:1;
+  filter: progid:DXImageTransform.Microsoft.Shadow(color='#969696', Direction=135, Strength=3);
+  behavior: url(ie-css3.htc); /* This lets IE know to call the script on all elements which get the 'box' class */
+}
+/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/ 				   
+ .ListBox{ width: 150px;   height: 60px;    overflow-x: hidden;    overflow-y: auto;   border: 1px solid #CCCCCC;}
+ 

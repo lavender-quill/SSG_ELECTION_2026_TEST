@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Layout B — Stepper Wizard</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+  .topbar{background:#1e293b;border-bottom:1px solid #334155;padding:14px 28px;display:flex;align-items:center;gap:14px}
+  .topbar h1{font-size:16px;font-weight:700;color:#f8fafc}
+  .badge{background:#7c3aed;color:#fff;font-size:11px;padding:3px 10px;border-radius:99px;font-weight:600}
+  .container{max-width:960px;margin:0 auto;padding:32px 24px}
+  .page-title{font-size:22px;font-weight:800;color:#f8fafc;margin-bottom:4px}
+  .page-sub{font-size:13px;color:#94a3b8;margin-bottom:28px}
+  .layout{display:grid;grid-template-columns:280px 1fr;gap:24px;align-items:start}
+
+  /* Stepper sidebar */
+  .stepper{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px 0;position:sticky;top:24px}
+  .step{display:flex;align-items:flex-start;gap:14px;padding:14px 20px;cursor:pointer;position:relative}
+  .step:not(:last-child)::after{content:'';position:absolute;left:35px;top:52px;width:2px;height:calc(100% - 18px);background:#334155}
+  .step.done:not(:last-child)::after{background:#7c3aed}
+  .step-circle{width:28px;height:28px;border-radius:50%;border:2px solid #334155;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#64748b;flex-shrink:0;position:relative;z-index:1;background:#0f172a}
+  .step.done .step-circle{background:#7c3aed;border-color:#7c3aed;color:#fff}
+  .step.active .step-circle{background:#1e293b;border-color:#7c3aed;color:#7c3aed}
+  .step-info{padding-top:2px}
+  .step-label{font-size:12px;color:#64748b;margin-bottom:2px}
+  .step-name{font-size:13px;font-weight:600;color:#94a3b8}
+  .step.active .step-name{color:#f1f5f9}
+  .step.done .step-name{color:#94a3b8}
+  .step-tag{font-size:10px;color:#7c3aed;background:#2e1065;padding:1px 6px;border-radius:99px;margin-left:6px;font-weight:600}
+
+  /* Main form panel */
+  .panel{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:28px}
+  .panel-title{font-size:17px;font-weight:700;color:#f8fafc;margin-bottom:4px}
+  .panel-sub{font-size:13px;color:#64748b;margin-bottom:24px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+  .form-group{display:flex;flex-direction:column;gap:6px}
+  .form-group.full{grid-column:1/-1}
+  label{font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px}
+  input,select,textarea{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px 14px;color:#e2e8f0;font-size:13px;outline:none;width:100%}
+  input:focus,select:focus{border-color:#7c3aed}
+  .college-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .chip{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #334155;color:#94a3b8;background:transparent;transition:all .15s}
+  .chip.selected{background:#2e1065;border-color:#7c3aed;color:#c4b5fd}
+  .chip:hover{border-color:#64748b;color:#e2e8f0}
+  .preview-box{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:16px;margin-bottom:20px}
+  .preview-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1e293b;font-size:13px}
+  .preview-row:last-child{border-bottom:none}
+  .preview-key{color:#64748b}
+  .preview-val{color:#f1f5f9;font-weight:500}
+  .btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+  .btn{padding:9px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600}
+  .btn-primary{background:#7c3aed;color:#fff}
+  .btn-secondary{background:transparent;border:1px solid #334155;color:#94a3b8}
+  .upload-area{border:2px dashed #334155;border-radius:10px;padding:28px;text-align:center;cursor:pointer;margin-bottom:0}
+  .upload-area:hover{border-color:#7c3aed}
+  .upload-icon{font-size:32px;margin-bottom:8px}
+  .upload-text{font-size:13px;color:#64748b}
+  .upload-hint{font-size:11px;color:#475569;margin-top:4px}
+  .divider{border:none;border-top:1px solid #334155;margin:20px 0}
+  .progress-bar{height:4px;background:#334155;border-radius:2px;margin-bottom:28px}
+  .progress-fill{height:100%;background:#7c3aed;border-radius:2px;width:40%}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span style="font-size:20px">🎓</span>
+  <h1>Register Candidate</h1>
+  <span class="badge">Step 2 of 4</span>
+</div>
+<div class="container">
+  <div class="page-title">Register Candidates</div>
+  <div class="page-sub">Follow the steps to register each candidate one at a time.</div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+
+  <div class="layout">
+    <!-- Stepper -->
+    <div class="stepper">
+      <div class="step done">
+        <div class="step-circle">✓</div>
+        <div class="step-info">
+          <div class="step-label">Step 1</div>
+          <div class="step-name">Student Lookup</div>
+        </div>
+      </div>
+      <div class="step active">
+        <div class="step-circle">2</div>
+        <div class="step-info">
+          <div class="step-label">Step 2</div>
+          <div class="step-name">Position &amp; Slate <span class="step-tag">NOW</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-circle">3</div>
+        <div class="step-info">
+          <div class="step-label">Step 3</div>
+          <div class="step-name">Photo Upload</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-circle">4</div>
+        <div class="step-info">
+          <div class="step-label">Step 4</div>
+          <div class="step-name">Review &amp; Submit</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Position & Slate -->
+    <div class="panel">
+      <div class="panel-title">Position &amp; Slate</div>
+      <div class="panel-sub">Select what position this candidate is running for and which party they belong to.</div>
+
+      <!-- Student Preview -->
+      <div class="preview-box">
+        <div class="preview-row"><span class="preview-key">Student ID</span><span class="preview-val" style="font-family:monospace">22-A-00351</span></div>
+        <div class="preview-row"><span class="preview-key">Name</span><span class="preview-val">Juan Dela Cruz</span></div>
+        <div class="preview-row"><span class="preview-key">College</span><span class="preview-val">College of Computing Studies (CCS)</span></div>
+        <div class="preview-row"><span class="preview-key">Year Level</span><span class="preview-val">3rd Year</span></div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Position</label>
+          <select>
+            <option>— Select a position —</option>
+            <option selected>President</option>
+            <option>Vice President</option>
+            <option>Secretary</option>
+            <option>Treasurer</option>
+            <option>Senator</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Party Slate</label>
+          <div class="college-chips">
+            <div class="chip selected">🔵 Bukas</div>
+            <div class="chip">🟢 Kasama</div>
+            <div class="chip">🔴 Tapang</div>
+            <div class="chip">🟡 Alyansa</div>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>Election Year</label>
+          <input value="2026-2027" readonly style="background:#131d2e;color:#64748b"/>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary">← Back</button>
+        <button class="btn btn-primary">Next: Photo Upload →</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

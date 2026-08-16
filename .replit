@@ -1,0 +1,53 @@
+modules = ["php-8.2", "nodejs-20", "web"]
+[agent]
+expertMode = true
+stack = "BEST_EFFORT_FALLBACK"
+
+[nix]
+channel = "stable-25_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "php -S 0.0.0.0:5000 -t api-version1"
+waitForPort = 5000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["php", "-S", "0.0.0.0:5000", "-t", "api-version1"]
+
+[userenv]
+
+[userenv.shared]
+DB_HOST = "153.92.15.54"
+DB_PORT = "3306"
+DB_MANAGE_NAME = "u619479353_SSG_API_Manage"
+DB_MANAGE_USER = "u619479353_CCS_Creative"
+DB_VOTER_NAME = "u619479353_SSG_Voter"
+DB_VOTER_USER = "u619479353_CC5_Creative"
+DB_CANDIDATE_NAME = "u619479353_SSG_Candidate"
+DB_CANDIDATE_USER = "u619479353_CCS_Cr3ative"
+DB_ELECTION_NAME = "u619479353_SSG_Election"
+DB_ELECTION_USER = "u619479353_CCS_Creativ3"

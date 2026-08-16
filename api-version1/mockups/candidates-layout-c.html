@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Layout C — Quick-Entry Table</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+  .topbar{background:#1e293b;border-bottom:1px solid #334155;padding:14px 28px;display:flex;align-items:center;gap:14px}
+  .topbar h1{font-size:16px;font-weight:700;color:#f8fafc}
+  .badge{background:#7c3aed;color:#fff;font-size:11px;padding:3px 10px;border-radius:99px;font-weight:600}
+  .sub{font-size:12px;color:#94a3b8;margin-left:auto}
+  .container{max-width:1180px;margin:0 auto;padding:28px 24px}
+  .page-title{font-size:22px;font-weight:800;color:#f8fafc;margin-bottom:4px}
+  .page-sub{font-size:13px;color:#94a3b8;margin-bottom:24px}
+
+  .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  .btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:#7c3aed;color:#fff}
+  .btn-success{background:#065f46;color:#34d399;border:1px solid #064e3b}
+  .btn-outline{background:transparent;color:#94a3b8;border:1px solid #334155}
+  .btn-danger{background:#450a0a;color:#f87171;border:1px solid #7f1d1d}
+  .badge-filter{padding:5px 12px;border-radius:99px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid transparent}
+  .bf-all{background:#1e293b;color:#94a3b8;border-color:#334155}
+  .bf-ccs{background:#1e1b4b;color:#818cf8;border-color:#3730a3}
+  .bf-ced{background:#064e3b;color:#34d399;border-color:#065f46}
+  .bf-cbe{background:#431407;color:#fb923c;border-color:#7c2d12}
+  .input-cell{background:#0f172a;border:1px solid #334155;border-radius:6px;padding:7px 10px;color:#e2e8f0;font-size:12px;width:100%;outline:none}
+  .input-cell:focus{border-color:#7c3aed}
+  select.input-cell{cursor:pointer}
+
+  .sheet{background:#1e293b;border:1px solid #334155;border-radius:12px;overflow:hidden}
+  .sheet-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #334155}
+  .sheet-header h3{font-size:14px;font-weight:700;color:#f1f5f9}
+  table{width:100%;border-collapse:collapse}
+  thead th{padding:10px 12px;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;text-align:left;background:#131d2e;border-bottom:1px solid #334155;white-space:nowrap}
+  thead th.col-check{width:36px}
+  tbody td{padding:8px 12px;border-bottom:1px solid #1a2437;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:#1a2842}
+  tbody tr.new-row td{background:#0d1a2e}
+  .college-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700}
+  .tag-ccs{background:#1e1b4b;color:#818cf8}
+  .tag-ced{background:#064e3b;color:#34d399}
+  .tag-cbe{background:#431407;color:#fb923c}
+  .tag-coas{background:#4a044e;color:#f0abfc}
+  .tag-cn{background:#082f49;color:#38bdf8}
+  .tag-ce{background:#422006;color:#facc15}
+  .badge-approved{background:#064e3b;color:#34d399;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+  .badge-pending{background:#451a03;color:#fb923c;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+  .badge-new{background:#1e1b4b;color:#818cf8;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+  .row-actions{display:flex;gap:6px;align-items:center}
+  .icon-btn{background:transparent;border:none;cursor:pointer;color:#64748b;font-size:15px;padding:4px;border-radius:4px}
+  .icon-btn:hover{background:#334155;color:#e2e8f0}
+  .add-row-btn{width:100%;background:transparent;border:none;border-top:1px solid #334155;padding:10px;color:#7c3aed;font-size:12px;font-weight:700;cursor:pointer;text-align:left}
+  .add-row-btn:hover{background:#1a2842}
+  .bulk-bar{background:#1e1b4b;border:1px solid #3730a3;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .bulk-bar span{font-size:13px;color:#a5b4fc;flex:1}
+  input[type=checkbox]{width:15px;height:15px;accent-color:#7c3aed;cursor:pointer}
+  .pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid #334155;font-size:12px;color:#64748b}
+  .pag-btns{display:flex;gap:6px}
+  .pag-btn{background:#1e293b;border:1px solid #334155;color:#94a3b8;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px}
+  .pag-btn.active{background:#7c3aed;border-color:#7c3aed;color:#fff}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span style="font-size:20px">🎓</span>
+  <h1>Candidates</h1>
+  <span class="badge">A.Y. 2026–2027</span>
+  <span class="sub">Quick-Entry Table · 24 candidates across 6 colleges</span>
+</div>
+
+<div class="container">
+  <div class="page-title">Manage Candidates</div>
+  <div class="page-sub">Spreadsheet-style entry. Filter by college, inline-edit cells, add rows directly. Fastest for bulk registration.</div>
+
+  <div class="toolbar">
+    <span class="badge-filter bf-all">All Colleges</span>
+    <span class="badge-filter bf-ccs">CCS</span>
+    <span class="badge-filter bf-ced">CED</span>
+    <span class="badge-filter bf-cbe">CBE</span>
+    <span style="font-size:12px;color:#475569">+ 3 more</span>
+    <div style="flex:1"></div>
+    <button class="btn btn-outline">📋 Import CSV</button>
+    <button class="btn btn-success">✔ Approve Selected</button>
+    <button class="btn btn-primary">+ Add Row</button>
+  </div>
+
+  <!-- Bulk action bar (shown when rows checked) -->
+  <div class="bulk-bar">
+    <span>3 candidates selected</span>
+    <button class="btn btn-success" style="padding:6px 14px;font-size:12px">✔ Approve 3</button>
+    <button class="btn btn-outline" style="padding:6px 14px;font-size:12px">Move to Pending</button>
+    <button class="btn btn-danger" style="padding:6px 14px;font-size:12px">🗑 Remove 3</button>
+  </div>
+
+  <div class="sheet">
+    <div class="sheet-header">
+      <h3>All Registered Candidates</h3>
+      <span style="font-size:12px;color:#64748b">Showing 1–8 of 24</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th class="col-check"><input type="checkbox"/></th>
+          <th>#</th>
+          <th>College</th>
+          <th>Student ID</th>
+          <th>Name</th>
+          <th>Position</th>
+          <th>Slate</th>
+          <th>Photo</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" checked/></td>
+          <td style="color:#64748b;font-size:12px">1</td>
+          <td><span class="college-tag tag-ccs">CCS</span></td>
+          <td><span style="font-family:monospace;font-size:12px">22-A-00351</span></td>
+          <td>Juan Dela Cruz</td>
+          <td><select class="input-cell" style="width:130px"><option selected>President</option></select></td>
+          <td><select class="input-cell" style="width:100px"><option selected>Bukas</option></select></td>
+          <td style="text-align:center"><span style="font-size:16px">📷</span></td>
+          <td><span class="badge-approved">Approved</span></td>
+          <td><div class="row-actions"><button class="icon-btn">✏️</button><button class="icon-btn">🗑</button></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" checked/></td>
+          <td style="color:#64748b;font-size:12px">2</td>
+          <td><span class="college-tag tag-ccs">CCS</span></td>
+          <td><span style="font-family:monospace;font-size:12px">22-A-00412</span></td>
+          <td>Maria Santos</td>
+          <td><select class="input-cell" style="width:130px"><option selected>Vice President</option></select></td>
+          <td><select class="input-cell" style="width:100px"><option selected>Bukas</option></select></td>
+          <td style="text-align:center"><span style="font-size:16px">✅</span></td>
+          <td><span class="badge-approved">Approved</span></td>
+          <td><div class="row-actions"><button class="icon-btn">✏️</button><button class="icon-btn">🗑</button></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" checked/></td>
+          <td style="color:#64748b;font-size:12px">3</td>
+          <td><span class="college-tag tag-ced">CED</span></td>
+          <td><span style="font-family:monospace;font-size:12px">22-B-00210</span></td>
+          <td>Ana Lim</td>
+          <td><select class="input-cell" style="width:130px"><option selected>Senator</option></select></td>
+          <td><select class="input-cell" style="width:100px"><option selected>Kasama</option></select></td>
+          <td style="text-align:center"><span style="font-size:16px">📷</span></td>
+          <td><span class="badge-pending">Pending</span></td>
+          <td><div class="row-actions"><button class="icon-btn">✏️</button><button class="icon-btn">🗑</button></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox"/></td>
+          <td style="color:#64748b;font-size:12px">4</td>
+          <td><span class="college-tag tag-cbe">CBE</span></td>
+          <td><span style="font-family:monospace;font-size:12px">23-C-00098</span></td>
+          <td>Carlo Reyes</td>
+          <td><select class="input-cell" style="width:130px"><option selected>Senator</option></select></td>
+          <td><select class="input-cell" style="width:100px"><option selected>Tapang</option></select></td>
+          <td style="text-align:center"><span style="font-size:16px">❌</span></td>
+          <td><span class="badge-pending">Pending</span></td>
+          <td><div class="row-actions"><button class="icon-btn">✏️</button><button class="icon-btn">🗑</button></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox"/></td>
+          <td style="color:#64748b;font-size:12px">5</td>
+          <td><span class="college-tag tag-cn">CN</span></td>
+          <td><span style="font-family:monospace;font-size:12px">23-E-00055</span></td>
+          <td>Rachel Tan</td>
+          <td><select class="input-cell" style="width:130px"><option selected>Senator</option></select></td>
+          <td><select class="input-cell" style="width:100px"><option selected>Kasama</option></select></td>
+          <td style="text-align:center"><span style="font-size:16px">✅</span></td>
+          <td><span class="badge-approved">Approved</span></td>
+          <td><div class="row-actions"><button class="icon-btn">✏️</button><button class="icon-btn">🗑</button></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox"/></td>
+          <td style="color:#64748b;font-size:12px">6</td>
+          <td><span class="college-tag tag-ce">CE</span></td>
+          <td><span style="font-family:monospace;font-size:12px">23-F-00131</span></td>
+          <td>Luis Miranda</td>
+          <td><select class="input-cell" style="width:130px"><option selected>Senator</option></select></td>
+          <td><select class="input-cell" style="width:100px"><option selected>Tapang</option></select></td>
+          <td style="text-align:center"><span style="font-size:16px">📷</span></td>
+          <td><span class="badge-pending">Pending</span></td>
+          <td><div class="row-actions"><button class="icon-btn">✏️</button><button class="icon-btn">🗑</button></div></td>
+        </tr>
+        <!-- New empty entry row -->
+        <tr class="new-row">
+          <td><input type="checkbox" disabled/></td>
+          <td style="color:#475569;font-size:12px">7</td>
+          <td>
+            <select class="input-cell" style="width:80px">
+              <option>College…</option>
+              <option>CCS</option><option>CED</option><option>CBE</option><option>COAS</option><option>CN</option><option>CE</option>
+            </select>
+          </td>
+          <td><input class="input-cell" placeholder="Student ID" style="width:130px"/></td>
+          <td><input class="input-cell" placeholder="Name auto-fills" style="color:#475569"/></td>
+          <td><select class="input-cell" style="width:130px"><option>Position…</option><option>President</option><option>VP</option><option>Senator</option></select></td>
+          <td><select class="input-cell" style="width:100px"><option>Slate…</option><option>Bukas</option><option>Kasama</option><option>Tapang</option></select></td>
+          <td style="text-align:center;color:#475569;font-size:12px">—</td>
+          <td><span class="badge-new">New</span></td>
+          <td><button class="btn btn-primary" style="padding:5px 12px;font-size:12px">Save</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="add-row-btn">+ Add Another Row</button>
+    <div class="pagination">
+      <span>Showing 1–8 of 24 candidates</span>
+      <div class="pag-btns">
+        <button class="pag-btn">← Prev</button>
+        <button class="pag-btn active">1</button>
+        <button class="pag-btn">2</button>
+        <button class="pag-btn">3</button>
+        <button class="pag-btn">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

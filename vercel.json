@@ -1,0 +1,36 @@
+{
+  "framework": "php",
+  "buildCommand": "echo 'Building PHP application'",
+  "devCommand": "php -S localhost:3000",
+  "env": {
+    "PHP_VERSION": "8.2"
+  },
+  "functions": {
+    "api-version1/**/*.php": {
+      "runtime": "php-8.2"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api-version1/index.php"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/((?!data|logs|artifacts).*)",
+      "destination": "/api-version1/index.php"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/data/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
+  ]
+}
