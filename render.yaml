@@ -3,8 +3,8 @@ services:
     name: ssg-election-app
     runtime: php
     plan: free
-    buildCommand: composer install --no-dev
-    startCommand: php -S 0.0.0.0:10000 -t api-version1
+    healthCheckPath: /
+    startCommand: php -S 0.0.0.0:$PORT -t api-version1
     envVars:
       - key: PHP_VERSION
         value: "8.2"
