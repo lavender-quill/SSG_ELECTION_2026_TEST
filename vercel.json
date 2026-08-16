@@ -1,8 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "services",
-  "buildCommand": "echo 'Building PHP application'",
-  "devCommand": "php -S localhost:3000",
   "env": {
     "PHP_VERSION": "8.2"
   },
@@ -10,7 +7,9 @@
     "app": {
       "root": "api-version1",
       "runtime": "php-8.2",
-      "entrypoint": "index.php"
+      "entrypoint": "index.php",
+      "buildCommand": "echo 'Building PHP application'",
+      "devCommand": "php -S localhost:3000"
     }
   },
   "rewrites": [
