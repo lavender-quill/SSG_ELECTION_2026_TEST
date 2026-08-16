@@ -6,7 +6,7 @@
   "services": {
     "app": {
       "root": "api-version1",
-      "runtime": "php-8.2",
+      "runtime": "php",
       "entrypoint": "index.php",
       "buildCommand": "echo 'Building PHP application'",
       "devCommand": "php -S localhost:3000"
