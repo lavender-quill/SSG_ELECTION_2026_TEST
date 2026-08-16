@@ -1,25 +1,29 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "services",
   "buildCommand": "echo 'Building PHP application'",
   "devCommand": "php -S localhost:3000",
   "env": {
     "PHP_VERSION": "8.2"
   },
-  "functions": {
-    "api-version1/**/*.php": {
-      "runtime": "php-8.2"
+  "services": {
+    "app": {
+      "root": "api-version1",
+      "runtime": "php-8.2",
+      "routes": [
+        {
+          "src": "/(.*)",
+          "dest": "/index.php"
+        }
+      ]
     }
   },
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api-version1/index.php"
-    }
-  ],
   "rewrites": [
     {
       "source": "/((?!data|logs|artifacts).*)",
-      "destination": "/api-version1/index.php"
+      "destination": {
+        "service": "app"
+      }
     }
   ],
   "headers": [
