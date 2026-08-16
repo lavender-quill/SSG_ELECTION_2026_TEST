@@ -5,13 +5,6 @@
  */
 
 require_once __DIR__ . '/includes/bootstrap.php';
-require_once __DIR__ . '/includes/admin-guard.php';
-
-// Only allow from admin
-if (!isset($_SESSION['admin_id'])) {
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
 
 // Mapping of Student_ID -> Position_ID based on the correct admin data
 $candidatesMap = [
