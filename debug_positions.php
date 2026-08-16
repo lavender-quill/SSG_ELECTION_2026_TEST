@@ -21,3 +21,4 @@ $sample = $pdo->query("SELECT cp.Student_ID, cp.Position_ID, pp.Position_Name, c
 
 echo "=== sample candidate_position + position_profile ===\n";
 echo json_encode($sample, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), "\n";
+// help
