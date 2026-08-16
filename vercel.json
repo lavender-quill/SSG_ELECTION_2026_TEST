@@ -10,12 +10,7 @@
     "app": {
       "root": "api-version1",
       "runtime": "php-8.2",
-      "routes": [
-        {
-          "src": "/(.*)",
-          "dest": "/index.php"
-        }
-      ]
+      "entrypoint": "index.php"
     }
   },
   "rewrites": [
