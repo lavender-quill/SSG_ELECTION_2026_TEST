@@ -1,5 +1,8 @@
 FROM php:8.2-cli
 
+# Install MySQL PDO extension
+RUN docker-php-ext-install pdo_mysql
+
 # Copy application
 COPY api-version1/ /app/
 
