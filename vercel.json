@@ -1,15 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cp -r api-version1/* api/ 2>/dev/null || xcopy api-version1 api /E /I /Y",
+  "functions": {
+    "api/**/*.php": {
+      "runtime": "vercel-php@0.6.0"
+    }
+  },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/api-version1/index.php"
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/((?!data|logs|artifacts).*)",
-      "destination": "/api-version1/index.php"
+      "dest": "/api/index.php"
     }
   ],
   "headers": [
