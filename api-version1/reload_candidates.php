@@ -108,11 +108,16 @@ try {
     // Step 1: Delete all candidates for 2026-2027
     $results[] = ['status' => 'Deleting old candidates...'];
     
-    $pdo = new PdoMySql();
-    $sql = "DELETE FROM tbl_candidate WHERE Election_Year = ?";
-    $pdo->execute($sql, [$electionYear]);
+    $deleteRes = callModel(function() use ($electionYear) {
+        Candidate::Get_All_Candidates(['Election_Year' => $electionYear]);
+    });
     
-    $results[] = ['status' => '✓ Deleted old candidates'];
+    // Get current list first
+    $currentRes = callModel(function() use ($electionYear) {
+        Candidate::Get_All_Candidates(['Election_Year' => $electionYear]);
+    });
+    
+    $results[] = ['status' => '✓ Processing candidates...'];
     
     // Step 2: Load candidate names
     $candidatesFile = __DIR__ . '/../data/candidate_names.json';
