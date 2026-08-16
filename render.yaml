@@ -1,12 +1,9 @@
 services:
   - type: web
     name: ssg-election-app
-    runtime: php
+    dockerfile: ./Dockerfile
     plan: free
     healthCheckPath: /
-    startCommand: php -S 0.0.0.0:$PORT -t api-version1
     envVars:
-      - key: PHP_VERSION
-        value: "8.2"
       - key: DB_HOST
         value: "153.92.15.54"
