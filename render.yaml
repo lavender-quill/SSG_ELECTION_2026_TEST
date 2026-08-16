@@ -3,7 +3,6 @@ services:
     name: ssg-election-app
     dockerfile: ./Dockerfile
     plan: free
-    healthCheckPath: /
     envVars:
       - key: DB_HOST
         value: "153.92.15.54"
