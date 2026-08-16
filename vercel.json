@@ -1,5 +1,5 @@
 {
-  "framework": "php",
+  "framework": "services",
   "buildCommand": "echo 'Building PHP application'",
   "devCommand": "php -S localhost:3000",
   "env": {
