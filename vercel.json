@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cp -r api-version1/* api/ 2>/dev/null || xcopy api-version1 api /E /I /Y",
   "functions": {
     "api/**/*.php": {
       "runtime": "vercel-php@0.6.0"
