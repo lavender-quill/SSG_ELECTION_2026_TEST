@@ -68,6 +68,8 @@ if ($globalStart && $globalEnd) {
 
 // ── COLLEGE VOTING SCHEDULE CHECK ──────────────────────────────────────────
 // JSON first, DB fallback (self-healing on redeploy)
+// Priority: college-specific schedule > global schedule
+// If college has no schedule defined, fall back to global (if global is open)
 $collegeSchedules = loadCollegeSchedules();
 
 $voterSched = null;
@@ -79,14 +81,11 @@ foreach ($collegeSchedules as $cs) {
 }
 
 // College schedule check (only applies when global is open and college is known)
-// If global is open but college has NO schedule defined, voting is CLOSED for that college
+// If college has a schedule, enforce it (override global)
+// If college has NO schedule, use global (fallback to allow "opened all" behavior)
 if ($votingOpen && $voterCollegeCode !== '') {
-    if (!$voterSched) {
-        // Global is open but this college has no schedule — they cannot vote
-        $votingOpen      = false;
-        $votingClosedMsg = 'Voting schedule for your college has not been set. Please contact the SSG Election Committee.';
-    } else {
-        // College has a schedule — check if we're in the college's voting window
+    if ($voterSched) {
+        // College has a specific schedule — check if we're in the college's voting window
         $now     = time();
         $tsStart = is_numeric($voterSched['Time_Start']) ? (int)$voterSched['Time_Start'] : strtotime((string)$voterSched['Time_Start']);
         $tsEnd   = is_numeric($voterSched['Time_End'])   ? (int)$voterSched['Time_End']   : strtotime((string)$voterSched['Time_End']);
@@ -98,6 +97,7 @@ if ($votingOpen && $voterCollegeCode !== '') {
             $votingClosedMsg = 'Voting for your college has ended. The window closed on <strong>' . date('F j, Y \a\t g:i A', $tsEnd) . '</strong>.';
         }
     }
+    // Otherwise: no college-specific schedule → fall back to global (already checked above)
 }
 
 // ── Enrollment gate ────────────────────────────────────────────────────────

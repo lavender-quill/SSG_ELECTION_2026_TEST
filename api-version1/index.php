@@ -436,7 +436,9 @@ if (!empty($_SESSION['logged_in'])) {
             min-height: 100vh;
             overflow-x: hidden;
             width: 100%;
+            max-width: 100%;
             padding-bottom: 60px;
+            box-sizing: border-box;
         }
 
         /* ── Navbar ── */
@@ -886,31 +888,33 @@ if (!empty($_SESSION['logged_in'])) {
             /* Hero grid → flex column */
             .hero {
                 display: flex; flex-direction: column;
-                padding: 20px 20px 8px; gap: 20px; text-align: center;
+                padding: 20px 16px 8px; gap: 16px; text-align: center;
+                width: 100%; box-sizing: border-box; max-width: 100%;
             }
-            .hero-left { order: 1; display: flex; flex-direction: column; align-items: center; }
+            .hero-left { order: 1; display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box; }
             .hero-right { order: 2; flex: none; width: 100%; display: flex; justify-content: center; }
-            .hero-countdown { order: 3; padding-top: 0; width: 100%; }
-            .hero-logo-row { justify-content: center; margin-bottom: 14px; }
-            .hero-logo { width: 58px; height: 58px; }
-            .hero-logo img { width: 50px; height: 50px; }
-            .hero-logo-label { font-size: 11px; }
-            .hero-right img { max-height: 200px; width: auto; }
-            .hero-title { font-size: clamp(26px, 7.5vw, 36px); line-height: 1.15; margin-bottom: 12px; }
-            .hero-desc { font-size: 13.5px; text-align: center; max-width: 100%; line-height: 1.6; margin-bottom: 20px; }
-            .hero-actions { flex-direction: column; align-items: center; width: 100%; gap: 12px; margin-bottom: 0; }
-            .btn-vote { width: 160px; height: 42px; font-size: 10px; }
-            .btn-results { width: 160px; height: 42px; font-size: 10px; }
+            .hero-countdown { order: 3; padding-top: 0; width: 100%; box-sizing: border-box; }
+            .hero-logo-row { justify-content: center; margin-bottom: 12px; }
+            .hero-logo { width: 56px; height: 56px; }
+            .hero-logo img { width: 48px; height: 48px; }
+            .hero-logo-label { font-size: 10px; }
+            .hero-right img { max-height: 180px; width: auto; }
+            .hero-title { font-size: clamp(24px, 7.5vw, 34px); line-height: 1.2; margin-bottom: 10px; }
+            .hero-desc { font-size: 13px; text-align: center; max-width: 100%; line-height: 1.6; margin-bottom: 18px; word-break: break-word; }
+            .hero-actions { flex-direction: column; align-items: center; width: 100%; gap: 10px; margin-bottom: 0; }
+            .btn-vote { width: 100%; max-width: 180px; height: 44px; font-size: 10px; }
+            .btn-results { width: 100%; max-width: 180px; height: 44px; font-size: 10px; }
 
             /* Countdown */
-            .countdown-label { text-align: center; font-size: 17px; margin-bottom: 12px; }
-            .countdown { justify-content: center; gap: 8px; flex-wrap: nowrap; }
-            .cd-box { min-width: 0; flex: 1; max-width: 72px; padding: 12px 6px 10px; border-radius: 12px; }
-            .cd-num { font-size: 26px; }
-            .cd-unit { font-size: 9px; margin-top: 6px; }
+            .countdown-label { text-align: center; font-size: 16px; margin-bottom: 10px; font-weight: 700; }
+            .countdown { justify-content: center; gap: 6px; flex-wrap: nowrap; width: 100%; box-sizing: border-box; }
+            .cd-box { min-width: 0; flex: 1; max-width: calc(25% - 5px); padding: 11px 5px 9px; border-radius: 11px; }
+            .cd-num { font-size: 24px; }
+            .cd-unit { font-size: 8px; margin-top: 5px; letter-spacing: 0; }
 
             /* Sections */
-            .section { padding: 48px 20px; }
+            .section { padding: 48px 20px; box-sizing: border-box; width: 100%; }
+            .section-inner { width: 100%; box-sizing: border-box; }
             .section-title { font-size: clamp(22px, 6vw, 30px); }
             .section-sub { font-size: 14px; width: auto !important; }
 
@@ -918,33 +922,34 @@ if (!empty($_SESSION['logged_in'])) {
             .leaders-header { margin-bottom: 32px; text-align: center; }
 
             /* Party cards */
-            .party-section { max-width: 100%; margin-bottom: 24px; }
+            .party-section { max-width: 100%; margin-bottom: 22px; box-sizing: border-box; }
             .party-card,
-            .party-card.reverse { flex-direction: column; border-radius: 16px; height: auto; }
+            .party-card.reverse { flex-direction: column; border-radius: 16px; height: auto; overflow: hidden; }
             .party-photo-col {
                 flex: none; width: 100%; aspect-ratio: 16/9; height: auto;
-                border-radius: 16px 16px 0 0;
+                border-radius: 16px 16px 0 0; object-fit: cover;
             }
-            .party-info-col { padding: 26px 20px 28px; }
-            .party-name { font-size: clamp(24px, 7vw, 36px); margin-bottom: 10px; }
-            .party-desc { font-size: 14px; line-height: 1.7; margin-bottom: 22px; }
-            .party-link { width: 100%; justify-content: center; }
-            .party-tags { margin-bottom: 12px; }
+            .party-info-col { padding: 22px 18px 24px; box-sizing: border-box; width: 100%; }
+            .party-name { font-size: clamp(22px, 7vw, 32px); margin-bottom: 8px; word-break: break-word; }
+            .party-desc { font-size: 13px; line-height: 1.6; margin-bottom: 18px; word-break: break-word; }
+            .party-link { width: 100%; justify-content: center; padding: 12px 20px !important; height: auto; min-height: 44px; }
+            .party-tags { margin-bottom: 10px; }
 
             /* Live tally */
             .live-tally-section { padding: 48px 16px; box-sizing: border-box; width: 100%; }
             .live-tally-title { font-size: 24px; }
-            .tally-positions-grid { grid-template-columns: 1fr; gap: 14px; width: 100%; }
+            .live-tally-header { width: 100%; box-sizing: border-box; }
+            .tally-positions-grid { grid-template-columns: 1fr; gap: 14px; width: 100%; max-width: 100%; }
             .tally-pos-card.full-width { grid-column: auto; }
             .tally-pos-card { padding: 18px 16px; border-radius: 14px; box-sizing: border-box; width: 100%; overflow: hidden; }
-            .tally-candidate-row { gap: 10px; }
+            .tally-candidate-row { gap: 10px; overflow: hidden; }
             .tally-cand-photo,
             .tally-cand-photo-placeholder { width: 38px; height: 38px; flex-shrink: 0; }
             .tally-cand-info { min-width: 0; overflow: hidden; }
-            .tally-cand-name { font-size: 12px; }
-            .tally-vote-pct { font-size: 11px; }
-            .tally-college-badge { font-size: 9px; letter-spacing: .4px; padding: 3px 8px; }
-            .tally-cand-name-row { gap: 4px; }
+            .tally-cand-name { font-size: 12px; word-break: break-word; }
+            .tally-vote-pct { font-size: 11px; white-space: nowrap; flex-shrink: 0; }
+            .tally-college-badge { font-size: 9px; letter-spacing: .4px; padding: 3px 8px; word-break: break-word; }
+            .tally-cand-name-row { gap: 4px; min-width: 0; }
             .live-tally-header { padding: 0 4px; }
 
             /* Contact section */
@@ -975,28 +980,41 @@ if (!empty($_SESSION['logged_in'])) {
 
         /* ── Small phones ≤ 480px ── */
         @media (max-width: 480px) {
-            .hero { padding: 16px 16px 8px; gap: 18px; }
-            .hero-title { font-size: clamp(24px, 8vw, 30px); }
-            .hero-right img { max-height: 180px; }
-            .countdown { gap: 6px; }
+            .hero { padding: 16px 14px 6px; gap: 14px; }
+            .hero-title { font-size: clamp(22px, 8vw, 28px); }
+            .hero-right img { max-height: 160px; }
+            .countdown { gap: 5px; }
             .cd-box { padding: 10px 4px 8px; }
             .cd-num { font-size: 22px; }
-            .party-info-col { padding: 22px 16px 24px; }
-            .party-name { font-size: clamp(22px, 7.5vw, 30px); }
+            .cd-unit { font-size: 7px; margin-top: 4px; }
+            .btn-vote, .btn-results { height: 42px; font-size: 9px; }
+            .party-info-col { padding: 20px 16px 22px; }
+            .party-name { font-size: clamp(20px, 7.5vw, 28px); }
+            .party-link { padding: 11px 18px !important; min-height: 42px; }
         }
 
         /* ── Very small phones ≤ 380px ── */
         @media (max-width: 380px) {
-            .navbar { padding: 0 14px; }
-            .navbar-brand { font-size: 15px; }
-            .hero { padding: 12px 14px 4px; }
-            .hero-title { font-size: clamp(22px, 8.5vw, 28px); }
-            .cd-box { max-width: 60px; }
+            .navbar { padding: 0 12px; }
+            .navbar-brand { font-size: 14px; }
+            .hero { padding: 12px 12px 4px; gap: 12px; }
+            .hero-logo { width: 52px; height: 52px; }
+            .hero-logo img { width: 44px; height: 44px; }
+            .hero-title { font-size: clamp(20px, 8.5vw, 26px); }
+            .hero-desc { font-size: 12px; }
+            .btn-vote, .btn-results { max-width: 160px; font-size: 9px; height: 40px; }
+            .cd-box { max-width: 22%; padding: 9px 3px 7px; }
             .cd-num { font-size: 20px; }
-            .cd-unit { font-size: 8px; letter-spacing: 0; }
-            .section { padding: 40px 14px; }
-            .live-tally-section { padding: 40px 12px; }
-            .tally-pos-card { padding: 16px 13px; }
+            .cd-unit { font-size: 7px; margin-top: 3px; }
+            .section { padding: 36px 12px; }
+            .section-title { font-size: clamp(20px, 6vw, 26px); }
+            .party-info-col { padding: 18px 14px 20px; }
+            .party-name { font-size: clamp(18px, 7vw, 24px); }
+            .party-desc { font-size: 12px; margin-bottom: 14px; }
+            .party-link { padding: 10px 16px !important; min-height: 40px; font-size: 9px; }
+            .live-tally-section { padding: 36px 10px; }
+            .tally-pos-card { padding: 14px 12px; }
+            .tally-candidate-row { gap: 8px; }
         }
     </style>
 </head>
