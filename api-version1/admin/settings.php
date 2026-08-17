@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if (!$college || !$ts || !$te || !$sy) {
             $error = 'All schedule fields are required.';
         } else {
+            @mkdir(DATA_DIR, 0755, true); // Ensure data directory exists
             $schedFile  = DATA_DIR . '/college_schedules.json';
             $schedStore = file_exists($schedFile) ? (json_decode(file_get_contents($schedFile), true) ?: []) : [];
             $schedStore[$college] = [
@@ -53,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if ($_POST['action'] === 'clear_college_schedule') {
         $college   = trim($_POST['clear_college'] ?? '');
+        @mkdir(DATA_DIR, 0755, true); // Ensure data directory exists
         $schedFile = DATA_DIR . '/college_schedules.json';
         if ($college) {
             if (file_exists($schedFile)) {
@@ -114,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 } else {
                     // Save timestamps locally so ballot.php and settings can rely on them
                     // (the DB stored procedure does not return Time_Start/Time_End on read)
+                    @mkdir(DATA_DIR, 0755, true); // Ensure data directory exists
                     $localSchedFile = DATA_DIR . '/election_schedule.json';
                     $localScheds = file_exists($localSchedFile)
                         ? (json_decode(file_get_contents($localSchedFile), true) ?: [])
@@ -219,6 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         $_eCfg['Username'], $_eCfg['Password'], [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
                     $_ePdo2->prepare('DELETE FROM cast_votes WHERE School_Year = ?')->execute([$yr]);
                 } catch (\Throwable $_cve) { error_log('cast_votes DB clear failed: ' . $_cve->getMessage()); }
+                @mkdir(DATA_DIR, 0755, true); // Ensure data directory exists
                 $cvFile = DATA_DIR . '/cast_votes.json';
                 $cvData = file_exists($cvFile) ? (json_decode(file_get_contents($cvFile), true) ?: []) : [];
                 $prefix = $yr . '::';
@@ -575,7 +579,7 @@ if ($schedStart && $schedEnd) {
                         <tbody>
                         <?php
                         $now = new DateTime();
-                        foreach ($localScheds as $es):
+                        foreach ($localScheds as $es) {
                             try {
                                 $tsVal = $es['Time_Start'];
                                 if (is_numeric($tsVal)) {
@@ -614,7 +618,7 @@ if ($schedStart && $schedEnd) {
                             } catch (\Throwable $e) {
                                 error_log('Invalid datetime in localScheds: ' . $e->getMessage());
                             }
-                        endforeach;
+                        }
                         ?>
                         </tbody>
                     </table>
@@ -702,7 +706,7 @@ if ($schedStart && $schedEnd) {
                         <tbody>
                         <?php
                         $now = new DateTime();
-                        foreach ($collegeSchedules as $cs):
+                        foreach ($collegeSchedules as $cs) {
                             try {
                                 $tsVal = $cs['Time_Start'];
                                 if (is_numeric($tsVal)) {
@@ -744,7 +748,7 @@ if ($schedStart && $schedEnd) {
                             } catch (\Throwable $e) {
                                 error_log('Invalid datetime in collegeSchedules: ' . $e->getMessage());
                             }
-                        endforeach;
+                        }
                         ?>
                         </tbody>
                     </table>
