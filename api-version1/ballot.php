@@ -679,6 +679,121 @@ $displayName   = ucwords(strtolower($name));
             .step-label { font-size: 8px; max-width: 45px; gap: 4px; }
         }
 
+        @media (max-width: 768px) {
+            .navbar { padding: 0 20px; }
+            .navbar-links { display: none; }
+            .nav-hamburger { display: flex; }
+            .page { padding: 24px 14px 48px; }
+            .ballot-card { padding: 24px 18px 20px; }
+            .stepper-wrap { margin-bottom: 24px; overflow-x: hidden; }
+            .step-label { font-size: 9px; max-width: 48px; }
+            .step-dot { width: 18px; height: 18px; }
+            .candidates-grid {
+                grid-template-columns: 1fr;
+                width: 100%;
+                gap: 12px;
+                justify-items: stretch;
+            }
+            .c-card {
+                width: 100%;
+                max-width: 100%;
+                align-items: stretch;
+            }
+            .c-card-bg {
+                min-height: 138px;
+                padding: 16px 82px 12px 12px;
+                width: 100%;
+            }
+            .c-num {
+                width: 46px;
+                height: 88px;
+                margin-top: 8px;
+                margin-right: -8px;
+                font-size: 38px;
+            }
+            .c-photo-wrap {
+                width: 92px;
+                right: 2px;
+                top: -38px;
+            }
+            .c-photo, .c-photo-placeholder {
+                width: 90px;
+                height: 120px;
+            }
+            .c-name { font-size: 13px; }
+            .c-nickname { font-size: 14px; }
+            .c-college { font-size: 10px; }
+            .c-detail { font-size: 9px; }
+        }
+
+        @media (max-width: 480px) {
+            .page { padding: 16px 10px 40px; }
+            .ballot-card { padding: 18px 12px 16px; border-radius: 14px; }
+            .position-title { font-size: 13px; padding: 7px 16px; }
+            .step-label { font-size: 8px; max-width: 40px; }
+            .c-card-bg {
+                min-height: 132px;
+                padding: 14px 76px 12px 10px;
+            }
+            .c-num {
+                width: 42px;
+                height: 80px;
+                margin-top: 10px;
+                font-size: 32px;
+            }
+            .c-photo-wrap {
+                width: 84px;
+                top: -34px;
+            }
+            .c-photo, .c-photo-placeholder {
+                width: 82px;
+                height: 110px;
+            }
+            .c-name { font-size: 12px; }
+            .c-nickname { font-size: 12.5px; }
+            .c-college { font-size: 9px; }
+            .c-detail { font-size: 8.5px; }
+            .ballot-actions { flex-direction: column-reverse; gap: 10px; }
+            .btn-reset, .btn-skip, .btn-next {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .ballot-actions { gap: 6px; }
+            .btn-reset, .btn-skip, .btn-next {
+                padding: 9px 14px;
+                font-size: 12px;
+            }
+            .position-title { font-size: 13px; padding: 7px 14px; }
+        }
+
+        @media (max-width: 360px) {
+            .c-card-bg {
+                min-height: 128px;
+                padding: 12px 68px 12px 8px;
+            }
+            .c-num {
+                width: 38px;
+                height: 74px;
+                font-size: 28px;
+            }
+            .c-photo-wrap {
+                width: 76px;
+                top: -30px;
+            }
+            .c-photo, .c-photo-placeholder {
+                width: 74px;
+                height: 102px;
+            }
+            .c-name { font-size: 11px; }
+            .c-nickname { font-size: 11.8px; }
+            .c-college { font-size: 8.5px; }
+            .c-detail { font-size: 8px; line-height: 1.5; }
+            .page { padding: 14px 8px 25px; }
+        }
+
         /* ── Main card ── */
         .ballot-card {
             background: #fff; border-radius: 18px;

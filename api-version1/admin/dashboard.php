@@ -113,6 +113,7 @@ $electionOpen   = stripos($scheduleStatus, 'open') !== false
             <a href="/admin/users.php" class="nav-item">Users</a>
             <a href="/admin/settings.php" class="nav-item">Settings</a>
             <a href="/admin/api-accounts.php" class="nav-item">API Accounts</a>
+            <a href="/admin/sync-candidates.php" class="nav-item" style="color:#16a34a; font-weight:600;">⟳ Sync Candidates</a>
         </nav>
         <div class="sidebar-footer">
             <a href="#" onclick="openTeamModal();return false;" class="sidebar-powered">Powered by CCS-Creatives Society</a>
