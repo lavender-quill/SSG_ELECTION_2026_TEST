@@ -738,6 +738,20 @@ if ($schedStart && $schedEnd) {
                 <?php endif; ?>
             </div>
 
+            <!-- Maintenance -->
+            <div class="section-title">Maintenance</div>
+            <div class="card">
+                <h3>📋 Sync Governor & Vice-Governor Colleges</h3>
+                <p style="font-size:13px;color:#6b7280;margin-bottom:18px;">
+                    Automatically assigns colleges to all governors and vice-governors based on their program codes.
+                    This creates/updates the <code>candidate_college.json</code> file which is used to separate them by college on the tally page.
+                </p>
+                <button type="button" class="btn btn-primary" id="syncGovButton" onclick="syncGovernorColleges()" style="background:#0891b2;border:none;cursor:pointer;">
+                    🔄 Sync Now
+                </button>
+                <div id="syncGovStatus" style="margin-top:12px;padding:10px;border-radius:6px;display:none;"></div>
+            </div>
+
             <!-- Danger Zone -->
             <div class="section-title" style="color:#b91c1c;">Danger Zone</div>
             <div class="card" style="border:2px solid #fca5a5;background:#fff8f8;">
@@ -911,6 +925,51 @@ function validateResetVotes() {
         return false;
     }
     return true;
+}
+
+function syncGovernorColleges() {
+    const btn = document.getElementById('syncGovButton');
+    const statusDiv = document.getElementById('syncGovStatus');
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ Syncing...';
+    statusDiv.innerHTML = '';
+    statusDiv.style.display = 'none';
+    
+    fetch('/api-version1/admin/sync-governor-colleges.php')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                statusDiv.style.background = '#d1fae5';
+                statusDiv.style.color = '#065f46';
+                statusDiv.style.border = '1px solid #a7f3d0';
+                statusDiv.innerHTML = `
+                    <strong>✓ Sync Successful!</strong><br/>
+                    <small>
+                        Assigned colleges: ${data.colleges_assigned}<br/>
+                        Names added: ${data.names_added}<br/>
+                        Total entries: ${data.total_in_candidate_college_json}
+                    </small>
+                `;
+            } else {
+                statusDiv.style.background = '#fee2e2';
+                statusDiv.style.color = '#991b1b';
+                statusDiv.style.border = '1px solid #fecaca';
+                statusDiv.innerHTML = `<strong>✗ Sync Failed</strong><br/><small>${data.error || 'Unknown error'}</small>`;
+            }
+            statusDiv.style.display = 'block';
+        })
+        .catch(err => {
+            statusDiv.style.background = '#fee2e2';
+            statusDiv.style.color = '#991b1b';
+            statusDiv.style.border = '1px solid #fecaca';
+            statusDiv.innerHTML = `<strong>✗ Error</strong><br/><small>${err.message}</small>`;
+            statusDiv.style.display = 'block';
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = '🔄 Sync Now';
+        });
 }
 </script>
 </body>
