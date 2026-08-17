@@ -160,12 +160,14 @@ try {
     foreach ($candidates as $c) {
         $sid    = trim($c['Student_ID'] ?? '');
         $pid    = (int)($c['Position_ID'] ?? 0);
-        $posKey = strtoupper(trim($c['Position'] ?? ($posIdMap[$pid] ?? 'GENERAL')));
+        $rawPos = trim($c['Position'] ?? ($posIdMap[$pid] ?? 'GENERAL'));
+        // Normalize spaces to hyphens: "VICE GOVERNOR" → "VICE-GOVERNOR"
+        $posKey = strtoupper(str_replace(' ', '-', $rawPos));
 
         // College grouping
         // Position names may include a college suffix (e.g. Representative_ccs, Representative_cted)
         // so we use str_starts_with instead of strict equality for REPRESENTATIVE.
-        if (in_array($posKey, ['GOVERNOR','VICE-GOVERNOR','VICE GOVERNOR'])) {
+        if (in_array($posKey, ['GOVERNOR','VICE-GOVERNOR'])) {
             $college = $ccMap[$sid] ?? '';
         } elseif (str_starts_with($posKey, 'REPRESENTATIVE')) {
             // Try position_ID map first
