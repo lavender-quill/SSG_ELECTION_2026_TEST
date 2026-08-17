@@ -166,8 +166,6 @@ class Election_DataModel
 								}
 								';
 
-}
-
 	const Create_ScheduleJsonSchema = '{"Type": "object",
 											        "Properties":{ "Time_Start" : {"Type": "string"},
 																   "Time_End"	: {"Type": "string"},
@@ -195,4 +193,4 @@ class Election_DataModel
 														}
 													},
 													"required": ["School_Year", "Students"]
-												}';
+												}';}

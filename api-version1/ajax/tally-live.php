@@ -132,9 +132,18 @@ try {
     $cnFile = DATA_DIR . '/candidate_names.json';
     if (file_exists($cnFile)) {
         $cnMap = json_decode(file_get_contents($cnFile), true) ?: [];
+        // Build case-insensitive lookup for existing names (nameMap keys might differ in case)
+        $nameLookupLower = array_combine(
+            array_map('strtoupper', array_keys($nameMap)),
+            array_keys($nameMap)
+        );
         foreach ($cnMap as $cnSid => $cnName) {
-            if (!isset($nameMap[trim($cnSid)])) {
-                $nameMap[trim($cnSid)] = $cnName;
+            $cnSidTrim = trim($cnSid);
+            $cnSidUpper = strtoupper($cnSidTrim);
+            // Only add if we don't already have this ID (case-insensitive)
+            $existingKey = $nameLookupLower[$cnSidUpper] ?? null;
+            if (!$existingKey) {
+                $nameMap[$cnSidTrim] = $cnName;
             }
         }
     }
@@ -168,7 +177,17 @@ try {
         // Position names may include a college suffix (e.g. Representative_ccs, Representative_cted)
         // so we use str_starts_with instead of strict equality for REPRESENTATIVE.
         if (in_array($posKey, ['GOVERNOR','VICE-GOVERNOR'])) {
-            $college = $ccMap[$sid] ?? '';
+            $college = $ccMap[$sid] ?? null;
+            if (!$college) {
+                // Try case-insensitive lookup
+                foreach ($ccMap as $ccKey => $ccVal) {
+                    if (strtoupper(trim($ccKey)) === strtoupper(trim($sid))) {
+                        $college = $ccVal;
+                        break;
+                    }
+                }
+            }
+            $college = $college ?? '';
         } elseif (str_starts_with($posKey, 'REPRESENTATIVE')) {
             // Try position_ID map first
             $college = $posIdToCollege[$pid] ?? '';
@@ -182,7 +201,19 @@ try {
 
         $partyKey   = $c['Candidate_Slate'] ?? '';
         $partyColor = $partyThemes[$partyKey] ?? '#1a3a8f';
-        $name       = ucwords(strtolower($nameMap[$sid] ?? $c['Student_ID'] ?? '—'));
+        
+        // Lookup name with case-insensitive fallback
+        $name = $nameMap[$sid] ?? null;
+        if (!$name) {
+            // Try case-insensitive lookup
+            foreach ($nameMap as $mapKey => $mapName) {
+                if (strtoupper(trim($mapKey)) === strtoupper(trim($sid))) {
+                    $name = $mapName;
+                    break;
+                }
+            }
+        }
+        $name = ucwords(strtolower($name ?? $c['Student_ID'] ?? '—'));
 
         if (!isset($byPosition[$posKey])) {
             $byPosition[$posKey] = [];

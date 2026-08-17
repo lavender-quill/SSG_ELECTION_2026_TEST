@@ -170,7 +170,20 @@ if (!empty($candidates) && is_array($candidates)) {
         $_ln   = $_c['Last_Name']  ?? $_c['Lastname']  ?? $_c['last_name']  ?? '';
         $_rawName = $_c['Candidate_Name'] ?? $_c['Full_Name'] ?? $_c['Name']
                     ?? (trim($_fn . ' ' . $_ln) !== '' ? trim($_fn . ' ' . $_ln) : null);
-        $_voterName = $_sid !== '' ? ($_nameMap[$_sid] ?? null) : null;
+        $_voterName = null;
+        if ($_sid !== '') {
+            // Try direct lookup first
+            $_voterName = $_nameMap[$_sid] ?? null;
+            // Try case-insensitive lookup
+            if (!$_voterName) {
+                foreach ($_nameMap as $_mapKey => $_mapVal) {
+                    if (strtoupper(trim($_mapKey)) === strtoupper(trim($_sid))) {
+                        $_voterName = $_mapVal;
+                        break;
+                    }
+                }
+            }
+        }
         $_name = ucwords(strtolower($_voterName ?? $_rawName ?? '—'));
         $_posRaw = $_c['Position_Name'] ?? $_c['Position'] ?? '';
         $_pos    = strtoupper(trim($_posRaw));
@@ -178,6 +191,15 @@ if (!empty($candidates) && is_array($candidates)) {
         if ($_pos === '') $_pos = $_pid > 0 ? ($_posIdMap[$_pid] ?? 'GENERAL') : 'GENERAL';
         if (in_array($_pos, ['GOVERNOR', 'VICE-GOVERNOR'])) {
             $_college = $_ccMapTally[$_sid] ?? '';
+            if (!$_college) {
+                // Try case-insensitive lookup
+                foreach ($_ccMapTally as $_ccKey => $_ccVal) {
+                    if (strtoupper(trim($_ccKey)) === strtoupper(trim($_sid))) {
+                        $_college = $_ccVal;
+                        break;
+                    }
+                }
+            }
         } elseif ($_pos === 'REPRESENTATIVE') {
             $_college = $_posIdToCollege[$_pid] ?? '';
         } else {
