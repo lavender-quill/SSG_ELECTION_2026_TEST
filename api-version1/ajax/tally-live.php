@@ -102,7 +102,7 @@ try {
     $vPdo = pdoConnect(\Configuration\Application::$SSG_Voter_DBase, $opts);
 
     // Auto-detect the most recent school year that has student data
-    // (ARMS mirror only goes up to 2024-2025, not the current election year)
+    // (ARMS mirror only goes up to 2024-2025, but synced to current election year)
     $totalStudents = 0;
     $baseYearRow = $vPdo->query(
         'SELECT School_Year FROM student GROUP BY School_Year ORDER BY School_Year DESC LIMIT 1'

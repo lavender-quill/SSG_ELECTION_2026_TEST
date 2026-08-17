@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $sy = trim($_POST['school_year'] ?? '');
         $sm = trim($_POST['semester'] ?? '');
         if (!preg_match('/^\d{4}-\d{4}$/', $sy)) {
-            $error = 'School year must be in the format YYYY-YYYY (e.g. 2024-2025).';
+            $error = 'School year must be in the format YYYY-YYYY (e.g. 2026-2027).';
         } elseif (!in_array($sm, ['1st', '2nd', 'Summer'])) {
             $error = 'Semester must be 1st, 2nd, or Summer.';
         } else {
@@ -425,7 +425,7 @@ if ($schedStart && $schedEnd) {
                             <label for="school_year">School Year</label>
                             <input type="text" id="school_year" name="school_year"
                                    value="<?= htmlspecialchars($currentSY) ?>"
-                                   placeholder="e.g. 2024-2025" required/>
+                                   placeholder="e.g. 2026-2027" required/>
                             <div class="hint">Format: YYYY-YYYY</div>
                         </div>
                         <div class="form-group">

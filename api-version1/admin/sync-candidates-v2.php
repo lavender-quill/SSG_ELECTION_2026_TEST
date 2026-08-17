@@ -32,13 +32,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 function performSync() {
     try {
-        $adminDir = __DIR__;
-        $apiDir = dirname($adminDir);
-        $workspaceRoot = dirname($apiDir);
-        $jsonPath = $workspaceRoot . '/data/candidate_names.json';
+        // Try multiple path strategies
+        $paths = [
+            dirname(__DIR__) . '/data/candidate_names.json',  // api-version1/data
+            dirname(dirname(__DIR__)) . '/data/candidate_names.json',  // workspace/data
+            __DIR__ . '/../../data/candidate_names.json',  // relative
+        ];
         
-        if (!file_exists($jsonPath)) {
-            return ['success' => false, 'error' => 'JSON file not found'];
+        $jsonPath = null;
+        foreach ($paths as $p) {
+            if (file_exists($p)) {
+                $jsonPath = $p;
+                break;
+            }
+        }
+        
+        if (!$jsonPath) {
+            return ['success' => false, 'error' => 'JSON file not found in expected locations'];
         }
         
         $json = json_decode(file_get_contents($jsonPath), true);
@@ -58,10 +68,24 @@ function performSync() {
 
 function previewJSON() {
     try {
-        $adminDir = __DIR__;
-        $apiDir = dirname($adminDir);
-        $workspaceRoot = dirname($apiDir);
-        $jsonPath = $workspaceRoot . '/data/candidate_names.json';
+        // Try multiple path strategies
+        $paths = [
+            dirname(__DIR__) . '/data/candidate_names.json',
+            dirname(dirname(__DIR__)) . '/data/candidate_names.json',
+            __DIR__ . '/../../data/candidate_names.json',
+        ];
+        
+        $jsonPath = null;
+        foreach ($paths as $p) {
+            if (file_exists($p)) {
+                $jsonPath = $p;
+                break;
+            }
+        }
+        
+        if (!$jsonPath) {
+            return ['success' => false, 'data' => [], 'error' => 'JSON file not found'];
+        }
         
         $json = json_decode(file_get_contents($jsonPath), true);
         return ['success' => true, 'data' => $json ?? []];
@@ -80,38 +104,148 @@ function previewJSON() {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/Presets/admin.css">
     <style>
+        /* Override body styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            background: #f0f0f0;
+            background-image: radial-gradient(circle, #c0c0c0 1px, transparent 1px);
+            background-size: 22px 22px;
+        }
+
         .sync-page { display: flex; min-height: 100vh; }
-        .sync-sidebar { width: 240px; background: linear-gradient(180deg, #0d2a6e 0%, #1a3a8f 100%); color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
-        .sync-logo { font-weight: 800; font-size: 14px; margin-bottom: 20px; }
-        .sync-nav { list-style: none; }
-        .sync-nav a { display: block; color: #a8c4f0; text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 3px; transition: 0.2s; }
-        .sync-nav a:hover { background: rgba(255,255,255,.1); color: #fff; }
-        .sync-nav a.active { background: rgba(245,196,0,.15); color: #f5c400; }
-        .sync-content { margin-left: 240px; flex: 1; padding: 40px; }
+        
+        .sync-content { 
+            margin-left: 240px; 
+            flex: 1; 
+            padding: 40px; 
+            background-color: #f0f0f0;
+            background-image: radial-gradient(circle, #c0c0c0 1px, transparent 1px);
+            background-size: 22px 22px;
+        }
+        
         .sync-header { margin-bottom: 30px; }
-        .sync-header h1 { font-size: 28px; font-weight: 800; color: #1a3a8f; margin-bottom: 8px; }
-        .sync-header p { font-size: 13px; color: #666; }
-        .sync-card { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .alert { padding: 14px 18px; border-radius: 8px; border-left: 4px solid; margin-bottom: 20px; font-weight: 600; }
+        .sync-header h1 { 
+            font-size: 28px; 
+            font-weight: 800; 
+            color: #1a3a8f; 
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+        .sync-header p { 
+            font-size: 13px; 
+            color: #666; 
+            font-weight: 500;
+        }
+        
+        .sync-card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 28px; 
+            margin-bottom: 24px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #f0f0f0;
+        }
+        
+        .alert { 
+            padding: 16px 20px; 
+            border-radius: 10px; 
+            border-left: 4px solid; 
+            margin-bottom: 24px; 
+            font-weight: 600;
+            font-size: 13px;
+        }
         .alert-success { background: #d4edda; border-color: #28a745; color: #155724; }
         .alert-error { background: #f8d7da; border-color: #dc3545; color: #721c24; }
         .alert-info { background: #d1ecf1; border-color: #17a2b8; color: #0c5460; }
-        .sync-title { font-size: 16px; font-weight: 800; color: #1a3a8f; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #f5c400; }
-        .sync-desc { font-size: 13px; color: #666; margin-bottom: 16px; line-height: 1.6; }
-        .sync-buttons { display: flex; gap: 12px; margin-top: 16px; }
-        .btn { padding: 11px 22px; border: none; border-radius: 8px; font-family: Poppins, sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .btn-primary { background: linear-gradient(135deg, #1a3a8f, #0d2a6e); color: white; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(26,58,143,0.3); }
-        .btn-info { background: linear-gradient(135deg, #17a2b8, #0f7c8f); color: white; }
-        .btn-info:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(23,162,184,0.3); }
-        .table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        .table th { background: #f8f9ff; padding: 12px; text-align: left; font-weight: 800; color: #1a3a8f; border-bottom: 2px solid #dde4f0; }
-        .table td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
+        
+        .sync-title { 
+            font-size: 16px; 
+            font-weight: 800; 
+            color: #1a3a8f; 
+            margin-bottom: 16px; 
+            padding-bottom: 12px; 
+            border-bottom: 2px solid #f5c400;
+            letter-spacing: -0.01em;
+        }
+        
+        .sync-desc { 
+            font-size: 13px; 
+            color: #666; 
+            margin-bottom: 16px; 
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        
+        .sync-buttons { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+        
+        .btn { 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 8px; 
+            font-family: Poppins, sans-serif; 
+            font-weight: 700; 
+            font-size: 13px; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, #1a3a8f, #0d2a6e); 
+            color: white;
+            box-shadow: 0 4px 12px rgba(26,58,143,0.3);
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 16px rgba(26,58,143,0.4); 
+        }
+        
+        .btn-info { 
+            background: linear-gradient(135deg, #17a2b8, #0f7c8f); 
+            color: white;
+            box-shadow: 0 4px 12px rgba(23,162,184,0.3);
+        }
+        .btn-info:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 16px rgba(23,162,184,0.4); 
+        }
+        
+        .table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 16px; 
+            font-size: 13px;
+        }
+        .table th { 
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f5ff 100%); 
+            padding: 12px 14px; 
+            text-align: left; 
+            font-weight: 800; 
+            color: #1a3a8f; 
+            border-bottom: 2px solid #dde4f0;
+        }
+        .table td { 
+            padding: 12px 14px; 
+            border-bottom: 1px solid #e5e7eb; 
+        }
         .table tr:hover { background: #f9fafb; }
-        .code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 12px; }
+        .code { 
+            background: #f5f5f5; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-family: monospace; 
+            font-size: 12px;
+            color: #0c5460;
+        }
+        
         @media (max-width: 768px) {
-            .sync-sidebar { width: 100%; height: auto; position: relative; }
             .sync-content { margin-left: 0; padding: 20px; }
+            .sync-header h1 { font-size: 22px; }
+            .sync-buttons { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -119,17 +253,29 @@ function previewJSON() {
 
 <div class="sync-page">
     <!-- Sidebar -->
-    <aside class="sync-sidebar">
-        <div class="sync-logo">🗳️ SSG Election</div>
-        <nav>
-            <a href="/admin/dashboard.php">Dashboard</a>
-            <a href="/admin/candidates.php">Candidates</a>
-            <a href="/admin/voters.php">Voters</a>
-            <a href="/admin/results.php">Results</a>
-            <a href="/admin/users.php">Users</a>
-            <a href="/admin/settings.php">Settings</a>
-            <a href="/admin/sync-candidates-v2.php" class="active">⟳ Sync Candidates</a>
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="/assets/ssg-logo.png" alt="SSG Logo" onerror="this.style.display='none'">
+            <div>
+                <div class="logo-text">SSG Election</div>
+                <div class="logo-sub">Admin Panel</div>
+            </div>
+        </div>
+        <span class="sidebar-badge">Administrator</span>
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard.php" class="nav-item">Dashboard</a>
+            <a href="/admin/candidates.php" class="nav-item">Candidates</a>
+            <a href="/admin/voters.php" class="nav-item">Voters</a>
+            <a href="/admin/results.php" class="nav-item">Results</a>
+            <a href="/admin/users.php" class="nav-item">Users</a>
+            <a href="/admin/settings.php" class="nav-item">Settings</a>
+            <a href="/admin/api-accounts.php" class="nav-item">API Accounts</a>
+            <a href="/admin/sync-candidates-v2.php" class="nav-item active">⟳ Sync Candidates</a>
         </nav>
+        <div class="sidebar-footer">
+            <a href="#" onclick="openTeamModal();return false;" class="sidebar-powered">Powered by CCS-Creatives Society</a>
+            <a href="/admin/logout.php" class="btn-logout-side">Sign Out</a>
+        </div>
     </aside>
 
     <!-- Content -->

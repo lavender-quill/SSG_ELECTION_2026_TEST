@@ -99,7 +99,7 @@ try {
 // Done after voter DB section so we can reuse the same $vPdo connection.
 
 // ── 2. Total registered voters & per-college breakdown from voter DB ─────────
-// The ARMS enrollment data available is 2024-2025. We use that as the voter
+// The ARMS enrollment data available is 2024-2025, but we sync to 2026-2027 election year
 // base regardless of the current election year, since it is the most recent
 // complete enrollment snapshot.
 try {
