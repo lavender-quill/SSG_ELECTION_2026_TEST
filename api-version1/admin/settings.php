@@ -104,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             } else {
                 $result = callModel(function() use ($ts, $te, $sy) {
                     Election::Create_Schedule([
-                        'Time_Start'  => $ts,
-                        'Time_End'    => $te,
+                        'Time_Start'  => (string)$ts,
+                        'Time_End'    => (string)$te,
                         'School_Year' => $sy,
                     ]);
                 });
@@ -281,11 +281,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     } // end CSRF else
 }
 
-// Load college schedules
+// Load college schedules from JSON file, fallback to DB
 $collegeSchedFile = DATA_DIR . '/college_schedules.json';
 $collegeSchedules = file_exists($collegeSchedFile)
     ? (json_decode(file_get_contents($collegeSchedFile), true) ?: [])
     : [];
+
+// If no schedules in JSON, try to load from database
+if (empty($collegeSchedules)) {
+    try {
+        $_eCfg = \Configuration\Application::$SSG_Election_DBase;
+        $_ePdo = new PDO("mysql:host={$_eCfg['Host']};port={$_eCfg['Port']};dbname={$_eCfg['DBName']};charset=utf8mb4",
+            $_eCfg['Username'], $_eCfg['Password'], [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+        $_cStmt = $_ePdo->prepare("SELECT Record_ID, Time_Start, Time_End, School_Year, College FROM election_schedule WHERE College IS NOT NULL AND College != '' ORDER BY College");
+        $_cStmt->execute();
+        foreach ($_cStmt->fetchAll(PDO::FETCH_ASSOC) as $_row) {
+            $_college = trim($_row['College'] ?? '');
+            if ($_college !== '') {
+                $collegeSchedules[$_college] = [
+                    'College'    => $_college,
+                    'Time_Start' => (int)($_row['Time_Start'] ?? 0),
+                    'Time_End'   => (int)($_row['Time_End'] ?? 0),
+                    'School_Year'=> $_row['School_Year'] ?? '',
+                    'Saved_At'   => '—',
+                ];
+            }
+        }
+    } catch (\Throwable $_dbErr) {
+        // Database unavailable, just use empty array
+    }
+}
 
 // Reload constants after possible save
 $settingsFile = DATA_DIR . '/settings.json';

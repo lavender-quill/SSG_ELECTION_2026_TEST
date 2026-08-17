@@ -177,16 +177,20 @@ try {
         // Position names may include a college suffix (e.g. Representative_ccs, Representative_cted)
         // so we use str_starts_with instead of strict equality for REPRESENTATIVE.
         if (in_array($posKey, ['GOVERNOR','VICE-GOVERNOR'])) {
+            // Try direct lookup first (exact match)
             $college = $ccMap[$sid] ?? null;
+            
+            // Try case-insensitive: normalize both to uppercase for comparison
             if (!$college) {
-                // Try case-insensitive lookup
+                $sidUpper = strtoupper(trim($sid));
                 foreach ($ccMap as $ccKey => $ccVal) {
-                    if (strtoupper(trim($ccKey)) === strtoupper(trim($sid))) {
+                    if (strtoupper(trim($ccKey)) === $sidUpper) {
                         $college = $ccVal;
                         break;
                     }
                 }
             }
+            
             $college = $college ?? '';
         } elseif (str_starts_with($posKey, 'REPRESENTATIVE')) {
             // Try position_ID map first
@@ -202,12 +206,12 @@ try {
         $partyKey   = $c['Candidate_Slate'] ?? '';
         $partyColor = $partyThemes[$partyKey] ?? '#1a3a8f';
         
-        // Lookup name with case-insensitive fallback
+        // Lookup name: direct first, then case-insensitive
         $name = $nameMap[$sid] ?? null;
         if (!$name) {
-            // Try case-insensitive lookup
+            $sidUpper = strtoupper(trim($sid));
             foreach ($nameMap as $mapKey => $mapName) {
-                if (strtoupper(trim($mapKey)) === strtoupper(trim($sid))) {
+                if (strtoupper(trim($mapKey)) === $sidUpper) {
                     $name = $mapName;
                     break;
                 }
