@@ -34,6 +34,7 @@ function performSync() {
     try {
         // Try multiple path strategies
         $paths = [
+            DATA_DIR . '/candidate_names.json',
             dirname(__DIR__) . '/data/candidate_names.json',  // api-version1/data
             dirname(dirname(__DIR__)) . '/data/candidate_names.json',  // workspace/data
             __DIR__ . '/../../data/candidate_names.json',  // relative
@@ -70,6 +71,7 @@ function previewJSON() {
     try {
         // Try multiple path strategies
         $paths = [
+            DATA_DIR . '/candidate_names.json',
             dirname(__DIR__) . '/data/candidate_names.json',
             dirname(dirname(__DIR__)) . '/data/candidate_names.json',
             __DIR__ . '/../../data/candidate_names.json',

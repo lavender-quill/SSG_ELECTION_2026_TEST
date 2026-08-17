@@ -242,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 file_put_contents($voteResetFile, json_encode($voteResets, JSON_PRETTY_PRINT), LOCK_EX);
 
                 // 5. Append reset notice to audit log
-                $logFile = dirname(dirname(__DIR__)) . '/logs/vote_audit.log';
+                $logFile = LOGS_DIR . '/vote_audit.log';
                 @file_put_contents($logFile,
                     sprintf("[%s] VOTE_RESET year=%s ip=%s admin=%s\n",
                         date('Y-m-d H:i:s T'), $yr,

@@ -120,7 +120,7 @@ try {
     $results[] = ['status' => '✓ Processing candidates...'];
     
     // Step 2: Load candidate names
-    $candidatesFile = __DIR__ . '/../data/candidate_names.json';
+    $candidatesFile = DATA_DIR . '/candidate_names.json';
     $candidateNames = file_exists($candidatesFile) 
         ? json_decode(file_get_contents($candidatesFile), true) 
         : [];
