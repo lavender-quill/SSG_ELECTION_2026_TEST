@@ -181,7 +181,7 @@ static function  App_Service_CRUD($MyRecord) {
 
 static function  Create_Schedule($MyRecord) { 
 	       
-    $ValidateSchema = JSON::ValidateSchema(JSON::Convert($MyRecord), Election_DataModel:: User_Account_CRUD_JsonSchema); 
+    $ValidateSchema = JSON::ValidateSchema(JSON::Convert($MyRecord), Election_DataModel:: Create_ScheduleJsonSchema); 
     
     if($ValidateSchema["Valid"]==true) 
     {  $MyQuery = Array("Election_schedule_create", JSON::Convert($MyRecord));

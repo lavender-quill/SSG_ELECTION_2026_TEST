@@ -522,6 +522,73 @@ if ($schedStart && $schedEnd) {
                 <?php endif; ?>
             </div>
 
+            <!-- Election Schedule Overview Table -->
+            <div class="card">
+                <div class="card-header-bar">
+                    <h3>All Election Schedules</h3>
+                    <span><?= count($localScheds) ?> schedule<?= count($localScheds) !== 1 ? 's' : '' ?> configured</span>
+                </div>
+                <?php if (empty($localScheds)): ?>
+                <div class="empty-state" style="padding:28px 20px;">
+                    <div class="icon"></div>
+                    No election schedules saved yet. Use the form above to add one.
+                </div>
+                <?php else: ?>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>School Year</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Status</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        $now = new DateTime();
+                        foreach ($localScheds as $es):
+                            $tsVal = $es['Time_Start'];
+                            if (is_numeric($tsVal)) {
+                                $dtStart = (new DateTime())->setTimestamp((int)$tsVal);
+                            } else {
+                                $dtStart = DateTime::createFromFormat('Y-m-d\TH:i', $tsVal) ?: new DateTime($tsVal);
+                            }
+                            $teVal = $es['Time_End'];
+                            if (is_numeric($teVal)) {
+                                $dtEnd = (new DateTime())->setTimestamp((int)$teVal);
+                            } else {
+                                $dtEnd = DateTime::createFromFormat('Y-m-d\TH:i', $teVal) ?: new DateTime($teVal);
+                            }
+                            $isActive = $now >= $dtStart && $now <= $dtEnd;
+                            $isPast   = $now > $dtEnd;
+                            $statusLabel = $isActive ? 'Open' : ($isPast ? 'Closed' : 'Upcoming');
+                            $statusClass = $isActive ? 'badge-active' : ($isPast ? 'badge-inactive' : 'badge-other');
+                            $dur = $dtEnd->getTimestamp() - $dtStart->getTimestamp(); 
+                            $h = floor($dur/3600); 
+                            $m = floor(($dur%3600)/60);
+                        ?>
+                        <tr>
+                            <td style="font-weight:700;color:#1a3a8f;">
+                                <?= htmlspecialchars($es['School_Year']) ?>
+                            </td>
+                            <td style="font-size:13px;white-space:nowrap;">
+                                <?= htmlspecialchars(is_numeric($es['Time_Start']) ? date('M d, Y H:i', (int)$es['Time_Start']) : str_replace('T', ' ', $es['Time_Start'])) ?>
+                            </td>
+                            <td style="font-size:13px;white-space:nowrap;">
+                                <?= htmlspecialchars(is_numeric($es['Time_End']) ? date('M d, Y H:i', (int)$es['Time_End']) : str_replace('T', ' ', $es['Time_End'])) ?>
+                            </td>
+                            <td><span class="badge-sm <?= $statusClass ?>"><?= $statusLabel ?></span></td>
+                            <td style="font-size:13px;"><?= $h ?>h <?= $m ?>m</td>
+                        </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php endif; ?>
+            </div>
+
             <!-- Voting Time Schedule by College -->
             <div class="section-title">Voting Time Schedule by College</div>
             <div class="card">
