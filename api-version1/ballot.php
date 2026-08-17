@@ -247,6 +247,7 @@ if (!isError($candidatesData)) {
         $candidateList = $candidatesData;
     }
 }
+$candidateList = applyCandidateJsonNameOverrides($candidateList);
 
 // ── ENRICH CANDIDATES WITH NAMES & PARTY FROM DB ──────────────────────────
 // The candidate DB only stores Student_ID — names come from the voter DB,

@@ -260,6 +260,7 @@ $rawPending = callModel(function() use ($schoolYear) {
 });
 if (isset($rawPending['Record']) && is_array($rawPending['Record'])) { $pendingList = $rawPending['Record']; }
 elseif (is_array($rawPending) && !empty($rawPending) && !isset($rawPending['Status'])) { $pendingList = $rawPending; }
+$pendingList = applyCandidateJsonNameOverrides($pendingList);
 
 // Approved candidates for the Candidates List
 $candidateList = [];
@@ -268,6 +269,7 @@ $raw = callModel(function() use ($schoolYear) {
 });
 if (isset($raw['Record']) && is_array($raw['Record'])) { $candidateList = $raw['Record']; }
 elseif (is_array($raw) && !empty($raw) && !isset($raw['Status'])) { $candidateList = $raw; }
+$candidateList = applyCandidateJsonNameOverrides($candidateList);
 
 // Denied/Disapproved candidates (DB enum uses DENIED, not REJECTED)
 $rejectedList = [];
@@ -276,6 +278,7 @@ $rawRejected = callModel(function() use ($schoolYear) {
 });
 if (isset($rawRejected['Record']) && is_array($rawRejected['Record'])) { $rejectedList = $rawRejected['Record']; }
 elseif (is_array($rawRejected) && !empty($rawRejected) && !isset($rawRejected['Status'])) { $rejectedList = $rawRejected; }
+$rejectedList = applyCandidateJsonNameOverrides($rejectedList);
 
 // ── Enrich all lists with Student_Name from voter DB ──────────────────────
 function enrichWithNames(array &$list, array $nameMap): void {

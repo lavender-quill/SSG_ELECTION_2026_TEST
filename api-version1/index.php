@@ -67,6 +67,7 @@ try {
     } else {
         $candidates = [];
     }
+    $candidates = applyCandidateJsonNameOverrides($candidates);
 
     $slateMap = [];
     try {
