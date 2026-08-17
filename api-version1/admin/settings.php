@@ -608,11 +608,11 @@ if ($schedStart && $schedEnd) {
                                     <td><span class="badge-sm <?= $statusClass ?>"><?= $statusLabel ?></span></td>
                                     <td style="font-size:13px;"><?= $h ?>h <?= $m ?>m</td>
                                 </tr>
+                        <?php
                             } catch (\Throwable $e) {
-                                // Invalid datetime format, skip this entry
                                 error_log('Invalid datetime in localScheds: ' . $e->getMessage());
                             }
-                        } // end foreach
+                        endforeach;
                         ?>
                         </tbody>
                     </table>
@@ -738,11 +738,11 @@ if ($schedStart && $schedEnd) {
                                         <button class="btn btn-red" style="padding:5px 12px;font-size:12px;" onclick="openClearScheduleModal('<?= htmlspecialchars(addslashes($cs['College'])) ?>');">Clear</button>
                                     </td>
                                 </tr>
+                        <?php
                             } catch (\Throwable $e) {
-                                // Invalid datetime format, skip this entry
                                 error_log('Invalid datetime in collegeSchedules: ' . $e->getMessage());
                             }
-                        } // end foreach
+                        endforeach;
                         ?>
                         </tbody>
                     </table>
