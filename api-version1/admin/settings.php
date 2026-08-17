@@ -574,40 +574,46 @@ if ($schedStart && $schedEnd) {
                         <?php
                         $now = new DateTime();
                         foreach ($localScheds as $es):
-                            $tsVal = $es['Time_Start'];
-                            if (is_numeric($tsVal)) {
-                                $dtStart = (new DateTime())->setTimestamp((int)$tsVal);
-                            } else {
-                                $dtStart = DateTime::createFromFormat('Y-m-d\TH:i', $tsVal) ?: new DateTime($tsVal);
-                            }
-                            $teVal = $es['Time_End'];
-                            if (is_numeric($teVal)) {
-                                $dtEnd = (new DateTime())->setTimestamp((int)$teVal);
-                            } else {
-                                $dtEnd = DateTime::createFromFormat('Y-m-d\TH:i', $teVal) ?: new DateTime($teVal);
-                            }
-                            $isActive = $now >= $dtStart && $now <= $dtEnd;
-                            $isPast   = $now > $dtEnd;
-                            $statusLabel = $isActive ? 'Open' : ($isPast ? 'Closed' : 'Upcoming');
-                            $statusClass = $isActive ? 'badge-active' : ($isPast ? 'badge-inactive' : 'badge-other');
-                            $dur = $dtEnd->getTimestamp() - $dtStart->getTimestamp(); 
-                            $h = floor($dur/3600); 
-                            $m = floor(($dur%3600)/60);
+                            try {
+                                $tsVal = $es['Time_Start'];
+                                if (is_numeric($tsVal)) {
+                                    $dtStart = (new DateTime())->setTimestamp((int)$tsVal);
+                                } else {
+                                    $dtStart = DateTime::createFromFormat('Y-m-d\TH:i', $tsVal) ?: new DateTime($tsVal);
+                                }
+                                $teVal = $es['Time_End'];
+                                if (is_numeric($teVal)) {
+                                    $dtEnd = (new DateTime())->setTimestamp((int)$teVal);
+                                } else {
+                                    $dtEnd = DateTime::createFromFormat('Y-m-d\TH:i', $teVal) ?: new DateTime($teVal);
+                                }
+                                $isActive = $now >= $dtStart && $now <= $dtEnd;
+                                $isPast   = $now > $dtEnd;
+                                $statusLabel = $isActive ? 'Open' : ($isPast ? 'Closed' : 'Upcoming');
+                                $statusClass = $isActive ? 'badge-active' : ($isPast ? 'badge-inactive' : 'badge-other');
+                                $dur = $dtEnd->getTimestamp() - $dtStart->getTimestamp(); 
+                                $h = floor($dur/3600); 
+                                $m = floor(($dur%3600)/60);
                         ?>
-                        <tr>
-                            <td style="font-weight:700;color:#1a3a8f;">
-                                <?= htmlspecialchars($es['School_Year']) ?>
-                            </td>
-                            <td style="font-size:13px;white-space:nowrap;">
-                                <?= htmlspecialchars(is_numeric($es['Time_Start']) ? date('M d, Y H:i', (int)$es['Time_Start']) : str_replace('T', ' ', $es['Time_Start'])) ?>
-                            </td>
-                            <td style="font-size:13px;white-space:nowrap;">
-                                <?= htmlspecialchars(is_numeric($es['Time_End']) ? date('M d, Y H:i', (int)$es['Time_End']) : str_replace('T', ' ', $es['Time_End'])) ?>
-                            </td>
-                            <td><span class="badge-sm <?= $statusClass ?>"><?= $statusLabel ?></span></td>
-                            <td style="font-size:13px;"><?= $h ?>h <?= $m ?>m</td>
-                        </tr>
-                        <?php endforeach; ?>
+                                <tr>
+                                    <td style="font-weight:700;color:#1a3a8f;">
+                                        <?= htmlspecialchars($es['School_Year']) ?>
+                                    </td>
+                                    <td style="font-size:13px;white-space:nowrap;">
+                                        <?= htmlspecialchars(is_numeric($es['Time_Start']) ? date('M d, Y H:i', (int)$es['Time_Start']) : str_replace('T', ' ', $es['Time_Start'])) ?>
+                                    </td>
+                                    <td style="font-size:13px;white-space:nowrap;">
+                                        <?= htmlspecialchars(is_numeric($es['Time_End']) ? date('M d, Y H:i', (int)$es['Time_End']) : str_replace('T', ' ', $es['Time_End'])) ?>
+                                    </td>
+                                    <td><span class="badge-sm <?= $statusClass ?>"><?= $statusLabel ?></span></td>
+                                    <td style="font-size:13px;"><?= $h ?>h <?= $m ?>m</td>
+                                </tr>
+                            } catch (\Throwable $e) {
+                                // Invalid datetime format, skip this entry
+                                error_log('Invalid datetime in localScheds: ' . $e->getMessage());
+                            }
+                        } // end foreach
+                        ?>
                         </tbody>
                     </table>
                 </div>
@@ -695,43 +701,49 @@ if ($schedStart && $schedEnd) {
                         <?php
                         $now = new DateTime();
                         foreach ($collegeSchedules as $cs):
-                            $tsVal = $cs['Time_Start'];
-                            if (is_numeric($tsVal)) {
-                                $dtStart = (new DateTime())->setTimestamp((int)$tsVal);
-                            } else {
-                                $dtStart = DateTime::createFromFormat('Y-m-d\TH:i', $tsVal) ?: new DateTime($tsVal);
-                            }
-                            $teVal = $cs['Time_End'];
-                            if (is_numeric($teVal)) {
-                                $dtEnd = (new DateTime())->setTimestamp((int)$teVal);
-                            } else {
-                                $dtEnd = DateTime::createFromFormat('Y-m-d\TH:i', $teVal) ?: new DateTime($teVal);
-                            }
-                            $isActive = $now >= $dtStart && $now <= $dtEnd;
-                            $isPast   = $now > $dtEnd;
-                            $statusLabel = $isActive ? 'Open' : ($isPast ? 'Closed' : 'Upcoming');
-                            $statusClass = $isActive ? 'badge-active' : ($isPast ? 'badge-inactive' : 'badge-other');
+                            try {
+                                $tsVal = $cs['Time_Start'];
+                                if (is_numeric($tsVal)) {
+                                    $dtStart = (new DateTime())->setTimestamp((int)$tsVal);
+                                } else {
+                                    $dtStart = DateTime::createFromFormat('Y-m-d\TH:i', $tsVal) ?: new DateTime($tsVal);
+                                }
+                                $teVal = $cs['Time_End'];
+                                if (is_numeric($teVal)) {
+                                    $dtEnd = (new DateTime())->setTimestamp((int)$teVal);
+                                } else {
+                                    $dtEnd = DateTime::createFromFormat('Y-m-d\TH:i', $teVal) ?: new DateTime($teVal);
+                                }
+                                $isActive = $now >= $dtStart && $now <= $dtEnd;
+                                $isPast   = $now > $dtEnd;
+                                $statusLabel = $isActive ? 'Open' : ($isPast ? 'Closed' : 'Upcoming');
+                                $statusClass = $isActive ? 'badge-active' : ($isPast ? 'badge-inactive' : 'badge-other');
                         ?>
-                        <tr>
-                            <td style="font-weight:700;color:#1a3a8f;max-width:220px;">
-                                <?= htmlspecialchars($cs['College']) ?>
-                            </td>
-                            <td><?= htmlspecialchars($cs['School_Year'] ?? '—') ?></td>
-                            <td style="font-size:13px;white-space:nowrap;">
-                                <?= htmlspecialchars(is_numeric($cs['Time_Start']) ? date('M d, Y H:i', (int)$cs['Time_Start']) : str_replace('T', ' ', $cs['Time_Start'])) ?>
-                            </td>
-                            <td style="font-size:13px;white-space:nowrap;">
-                                <?= htmlspecialchars(is_numeric($cs['Time_End']) ? date('M d, Y H:i', (int)$cs['Time_End']) : str_replace('T', ' ', $cs['Time_End'])) ?>
-                            </td>
-                            <td><span class="badge-sm <?= $statusClass ?>"><?= $statusLabel ?></span></td>
-                            <td style="font-size:12px;color:#9ca3af;">
-                                <?= htmlspecialchars($cs['Saved_At'] ?? '—') ?>
-                            </td>
-                            <td>
-                                <button class="btn btn-red" style="padding:5px 12px;font-size:12px;" onclick="openClearScheduleModal('<?= htmlspecialchars(addslashes($cs['College'])) ?>');">Clear</button>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
+                                <tr>
+                                    <td style="font-weight:700;color:#1a3a8f;max-width:220px;">
+                                        <?= htmlspecialchars($cs['College']) ?>
+                                    </td>
+                                    <td><?= htmlspecialchars($cs['School_Year'] ?? '—') ?></td>
+                                    <td style="font-size:13px;white-space:nowrap;">
+                                        <?= htmlspecialchars(is_numeric($cs['Time_Start']) ? date('M d, Y H:i', (int)$cs['Time_Start']) : str_replace('T', ' ', $cs['Time_Start'])) ?>
+                                    </td>
+                                    <td style="font-size:13px;white-space:nowrap;">
+                                        <?= htmlspecialchars(is_numeric($cs['Time_End']) ? date('M d, Y H:i', (int)$cs['Time_End']) : str_replace('T', ' ', $cs['Time_End'])) ?>
+                                    </td>
+                                    <td><span class="badge-sm <?= $statusClass ?>"><?= $statusLabel ?></span></td>
+                                    <td style="font-size:12px;color:#9ca3af;">
+                                        <?= htmlspecialchars($cs['Saved_At'] ?? '—') ?>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-red" style="padding:5px 12px;font-size:12px;" onclick="openClearScheduleModal('<?= htmlspecialchars(addslashes($cs['College'])) ?>');">Clear</button>
+                                    </td>
+                                </tr>
+                            } catch (\Throwable $e) {
+                                // Invalid datetime format, skip this entry
+                                error_log('Invalid datetime in collegeSchedules: ' . $e->getMessage());
+                            }
+                        } // end foreach
+                        ?>
                         </tbody>
                     </table>
                 </div>
