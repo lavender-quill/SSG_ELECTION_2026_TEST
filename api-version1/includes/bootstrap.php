@@ -210,6 +210,34 @@ function applyCandidateJsonNameOverrides(array $candidates): array {
     return $candidates;
 }
 
+function filterCandidatesToJsonSet(array $candidates): array {
+    $file = DATA_DIR . '/candidate_names.json';
+    if (!file_exists($file)) {
+        return $candidates;
+    }
+
+    $names = json_decode(file_get_contents($file), true) ?: [];
+    if (empty($names)) {
+        return $candidates;
+    }
+
+    $allowed = array_fill_keys(array_keys($names), true);
+    $filtered = [];
+
+    foreach ($candidates as $candidate) {
+        $sid = trim((string)($candidate['Student_ID'] ?? $candidate['student_id'] ?? ''));
+        if ($sid !== '' && isset($allowed[$sid])) {
+            $candidate['Candidate_Name'] = (string)($names[$sid] ?? $candidate['Candidate_Name'] ?? $candidate['Student_Name'] ?? $sid);
+            $candidate['Student_Name']   = (string)($names[$sid] ?? $candidate['Student_Name'] ?? $candidate['Candidate_Name'] ?? $sid);
+            $candidate['Name']           = (string)($names[$sid] ?? $candidate['Name'] ?? $candidate['Student_Name'] ?? $sid);
+            $candidate['Full_Name']      = (string)($names[$sid] ?? $candidate['Full_Name'] ?? $candidate['Student_Name'] ?? $sid);
+            $filtered[] = $candidate;
+        }
+    }
+
+    return $filtered;
+}
+
 function requireLogin(): void {
     if (empty($_SESSION['logged_in'])) {
         header('Location: /login.php');

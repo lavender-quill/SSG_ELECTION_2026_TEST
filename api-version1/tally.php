@@ -24,7 +24,7 @@ try {
     } else {
         $candidates = [];
     }
-    $candidates = applyCandidateJsonNameOverrides($candidates);
+    $candidates = filterCandidatesToJsonSet(applyCandidateJsonNameOverrides($candidates));
 } catch (\Throwable $e) {
     $candidates = [];
 }
