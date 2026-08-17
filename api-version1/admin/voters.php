@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                             'Election_Year'   => $schoolYear,
                             'Positions_Voted' => $_vRow['positions'] ?? '—',
                             'Local_Cache'     => isVoteCast($sid, $schoolYear) ? 'Yes' : 'No',
-                            'Note'            => 'Authenticated via ARMS but not found in 2024-2025 enrollment data.',
+                            'Note'            => 'Authenticated via ARMS but enrollment data is from ARMS sync (may differ from current year).',
                         ];
                     } else {
                         $searchResult = ['Status' => 'Error: No student found with ID "' . $sid . '"'];
@@ -250,7 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 // ── Load available school years for sync panel ────────────────────────────────
-$_syncOptions   = [];   // [['id'=>54,'sem'=>'2nd','sy'=>'2024-2025','enrolled'=>8108,'synced'=>6100], ...]
+$_syncOptions   = [];   // [['id'=>54,'sem'=>'2nd','sy'=>'2026-2027','enrolled'=>8108,'synced'=>6100], ...]
 try {
     $_vCfg2 = \Configuration\Application::$SSG_Voter_DBase;
     $_vPdo3 = new PDO(
@@ -291,7 +291,7 @@ $totalVoters    = 0;
 $castedCount    = 0;
 $_filteredTotal = 0;
 $_totalPages    = 1;
-$_baseYear      = '2024-2025';
+$_baseYear      = '2026-2027';
 $_collegeList   = [];
 $_votedIds      = [];
 
@@ -307,7 +307,7 @@ try {
     // Most recent enrollment year
     $_baseYear = $_vPdo->query(
         'SELECT School_Year FROM student GROUP BY School_Year ORDER BY School_Year DESC LIMIT 1'
-    )->fetchColumn() ?: '2024-2025';
+    )->fetchColumn() ?: '2026-2027';
 
     // Total enrolled (stat card — full count, no filter)
     $_tvStmt = $_vPdo->prepare(

@@ -89,7 +89,7 @@ if (file_exists($_runtimeSettingsFile)) {
     $_runtimeSettings = json_decode(file_get_contents($_runtimeSettingsFile), true) ?: [];
 }
 
-define('ELECTION_SCHOOL_YEAR', $_runtimeSettings['school_year'] ?? '2024-2025');
+define('ELECTION_SCHOOL_YEAR', $_runtimeSettings['school_year'] ?? '2026-2027');
 define('ELECTION_SEMESTER',    $_runtimeSettings['semester']    ?? '2nd');
 
 /**
