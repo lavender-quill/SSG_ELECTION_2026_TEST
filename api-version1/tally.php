@@ -24,6 +24,7 @@ try {
     } else {
         $candidates = [];
     }
+    $candidates = applyCandidateJsonNameOverrides($candidates);
 } catch (\Throwable $e) {
     $candidates = [];
 }

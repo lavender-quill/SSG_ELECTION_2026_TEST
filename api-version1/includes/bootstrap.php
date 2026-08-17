@@ -182,6 +182,34 @@ function isError(array $r): bool {
     return stripos($status, 'Error:') !== false || stripos($status, 'Error ') !== false;
 }
 
+function applyCandidateJsonNameOverrides(array $candidates): array {
+    $file = DATA_DIR . '/candidate_names.json';
+    if (!file_exists($file)) {
+        return $candidates;
+    }
+
+    $names = json_decode(file_get_contents($file), true) ?: [];
+    if (empty($names)) {
+        return $candidates;
+    }
+
+    foreach ($candidates as &$candidate) {
+        $sid = trim((string)($candidate['Student_ID'] ?? $candidate['student_id'] ?? ''));
+        if ($sid !== '' && isset($names[$sid])) {
+            $name = (string)$names[$sid];
+            $candidate['Candidate_Name'] = $name;
+            $candidate['Student_Name']   = $name;
+            $candidate['Name']           = $name;
+            $candidate['Full_Name']      = $name;
+            $candidate['First_Name']     = $name;
+            $candidate['Last_Name']      = '';
+        }
+    }
+    unset($candidate);
+
+    return $candidates;
+}
+
 function requireLogin(): void {
     if (empty($_SESSION['logged_in'])) {
         header('Location: /login.php');
