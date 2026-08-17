@@ -30,7 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sync_action'])) {
         }
     } elseif ($action === 'preview_json') {
         // Just preview without syncing
-        $jsonPath = __DIR__ . '/../../data/candidate_names.json';
+        $basePath = dirname(dirname(__DIR__)); // From admin/ up to workspace root
+        $jsonPath = $basePath . '/data/candidate_names.json';
+        
         if (file_exists($jsonPath)) {
             $jsonContent = json_decode(file_get_contents($jsonPath), true);
             $message = "JSON file contains " . count($jsonContent) . " candidates.";
@@ -57,11 +59,12 @@ function syncCandidatesFromJSON() {
     ];
 
     try {
-        // Load JSON file
-        $jsonPath = __DIR__ . '/../../data/candidate_names.json';
+        // Load JSON file - data folder is at workspace root
+        $basePath = dirname(dirname(__DIR__)); // From admin/ up to workspace root
+        $jsonPath = $basePath . '/data/candidate_names.json';
         
         if (!file_exists($jsonPath)) {
-            throw new Exception("File not found: candidate_names.json");
+            throw new Exception("File not found at: " . $jsonPath);
         }
 
         $jsonContent = file_get_contents($jsonPath);
