@@ -314,7 +314,9 @@ if (empty($collegeSchedules)) {
 
 // Reload constants after possible save
 $settingsFile = DATA_DIR . '/settings.json';
-$currentSettings = json_decode(file_get_contents($settingsFile), true) ?: [];
+$currentSettings = file_exists($settingsFile)
+    ? (json_decode(file_get_contents($settingsFile), true) ?: [])
+    : [];
 $currentSY = $currentSettings['school_year'] ?? ELECTION_SCHOOL_YEAR;
 $currentSM = $currentSettings['semester']    ?? ELECTION_SEMESTER;
 
