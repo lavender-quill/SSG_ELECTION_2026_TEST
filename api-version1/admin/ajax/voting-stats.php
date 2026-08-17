@@ -73,7 +73,7 @@ try {
         }
     } catch (\Throwable $_cte) {
         // DB unavailable — fall back to JSON cache
-        $castVotesFile = dirname(dirname(dirname(__DIR__))) . '/data/cast_votes.json';
+        $castVotesFile = DATA_DIR . '/cast_votes.json';
         if (is_readable($castVotesFile)) {
             $decoded = json_decode(file_get_contents($castVotesFile), true);
             if (is_array($decoded)) {

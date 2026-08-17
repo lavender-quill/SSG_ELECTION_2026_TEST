@@ -1,0 +1,60 @@
+{
+  "functions": {
+    "api-version1/**/*.php": {
+      "runtime": "vercel-php@0.9.0"
+    }
+  },
+  "routes": [
+    {
+      "src": "/Presets/(.*)",
+      "dest": "/api-version1/Presets/$1"
+    },
+    {
+      "src": "/favicon.png",
+      "dest": "/api-version1/favicon.png"
+    },
+    {
+      "src": "/admin/ajax/(.*\\.php)",
+      "dest": "/api-version1/admin/ajax/$1"
+    },
+    {
+      "src": "/admin/ajax/(.*)",
+      "dest": "/api-version1/admin/ajax/$1"
+    },
+    {
+      "src": "/admin/(.*\\.php)",
+      "dest": "/api-version1/admin/$1"
+    },
+    {
+      "src": "/admin$",
+      "status": 308,
+      "headers": {
+        "Location": "/admin/"
+      }
+    },
+    {
+      "src": "/admin/",
+      "dest": "/api-version1/admin/index.php"
+    },
+    {
+      "src": "/ajax/(.*\\.php)",
+      "dest": "/api-version1/ajax/$1"
+    },
+    {
+      "src": "/ajax/(.*)",
+      "dest": "/api-version1/ajax/$1"
+    },
+    {
+      "src": "/(.*\.(php|html))",
+      "dest": "/api-version1/$1"
+    },
+    {
+      "src": "/$",
+      "dest": "/api-version1/index.php"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api-version1/index.php"
+    }
+  ]
+}

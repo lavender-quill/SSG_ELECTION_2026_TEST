@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if (!$college || !$ts || !$te || !$sy) {
             $error = 'All schedule fields are required.';
         } else {
+            @mkdir(DATA_DIR, 0755, true); // Ensure data directory exists
             $schedFile  = DATA_DIR . '/college_schedules.json';
             $schedStore = file_exists($schedFile) ? (json_decode(file_get_contents($schedFile), true) ?: []) : [];
             $schedStore[$college] = [
@@ -53,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if ($_POST['action'] === 'clear_college_schedule') {
         $college   = trim($_POST['clear_college'] ?? '');
+        @mkdir(DATA_DIR, 0755, true); // Ensure data directory exists
         $schedFile = DATA_DIR . '/college_schedules.json';
         if ($college) {
             if (file_exists($schedFile)) {
@@ -114,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 } else {
                     // Save timestamps locally so ballot.php and settings can rely on them
                     // (the DB stored procedure does not return Time_Start/Time_End on read)
+                    @mkdir(DATA_DIR, 0755, true); // Ensure data directory exists
                     $localSchedFile = DATA_DIR . '/election_schedule.json';
                     $localScheds = file_exists($localSchedFile)
                         ? (json_decode(file_get_contents($localSchedFile), true) ?: [])
@@ -219,6 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         $_eCfg['Username'], $_eCfg['Password'], [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
                     $_ePdo2->prepare('DELETE FROM cast_votes WHERE School_Year = ?')->execute([$yr]);
                 } catch (\Throwable $_cve) { error_log('cast_votes DB clear failed: ' . $_cve->getMessage()); }
+                @mkdir(DATA_DIR, 0755, true); // Ensure data directory exists
                 $cvFile = DATA_DIR . '/cast_votes.json';
                 $cvData = file_exists($cvFile) ? (json_decode(file_get_contents($cvFile), true) ?: []) : [];
                 $prefix = $yr . '::';
@@ -238,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 file_put_contents($voteResetFile, json_encode($voteResets, JSON_PRETTY_PRINT), LOCK_EX);
 
                 // 5. Append reset notice to audit log
-                $logFile = dirname(dirname(__DIR__)) . '/logs/vote_audit.log';
+                $logFile = LOGS_DIR . '/vote_audit.log';
                 @file_put_contents($logFile,
                     sprintf("[%s] VOTE_RESET year=%s ip=%s admin=%s\n",
                         date('Y-m-d H:i:s T'), $yr,
@@ -314,7 +318,9 @@ if (empty($collegeSchedules)) {
 
 // Reload constants after possible save
 $settingsFile = DATA_DIR . '/settings.json';
-$currentSettings = json_decode(file_get_contents($settingsFile), true) ?: [];
+$currentSettings = file_exists($settingsFile)
+    ? (json_decode(file_get_contents($settingsFile), true) ?: [])
+    : [];
 $currentSY = $currentSettings['school_year'] ?? ELECTION_SCHOOL_YEAR;
 $currentSM = $currentSettings['semester']    ?? ELECTION_SEMESTER;
 
@@ -573,41 +579,47 @@ if ($schedStart && $schedEnd) {
                         <tbody>
                         <?php
                         $now = new DateTime();
-                        foreach ($localScheds as $es):
-                            $tsVal = $es['Time_Start'];
-                            if (is_numeric($tsVal)) {
-                                $dtStart = (new DateTime())->setTimestamp((int)$tsVal);
-                            } else {
-                                $dtStart = DateTime::createFromFormat('Y-m-d\TH:i', $tsVal) ?: new DateTime($tsVal);
-                            }
-                            $teVal = $es['Time_End'];
-                            if (is_numeric($teVal)) {
-                                $dtEnd = (new DateTime())->setTimestamp((int)$teVal);
-                            } else {
-                                $dtEnd = DateTime::createFromFormat('Y-m-d\TH:i', $teVal) ?: new DateTime($teVal);
-                            }
-                            $isActive = $now >= $dtStart && $now <= $dtEnd;
-                            $isPast   = $now > $dtEnd;
-                            $statusLabel = $isActive ? 'Open' : ($isPast ? 'Closed' : 'Upcoming');
-                            $statusClass = $isActive ? 'badge-active' : ($isPast ? 'badge-inactive' : 'badge-other');
-                            $dur = $dtEnd->getTimestamp() - $dtStart->getTimestamp(); 
-                            $h = floor($dur/3600); 
-                            $m = floor(($dur%3600)/60);
+                        foreach ($localScheds as $es) {
+                            try {
+                                $tsVal = $es['Time_Start'];
+                                if (is_numeric($tsVal)) {
+                                    $dtStart = (new DateTime())->setTimestamp((int)$tsVal);
+                                } else {
+                                    $dtStart = DateTime::createFromFormat('Y-m-d\TH:i', $tsVal) ?: new DateTime($tsVal);
+                                }
+                                $teVal = $es['Time_End'];
+                                if (is_numeric($teVal)) {
+                                    $dtEnd = (new DateTime())->setTimestamp((int)$teVal);
+                                } else {
+                                    $dtEnd = DateTime::createFromFormat('Y-m-d\TH:i', $teVal) ?: new DateTime($teVal);
+                                }
+                                $isActive = $now >= $dtStart && $now <= $dtEnd;
+                                $isPast   = $now > $dtEnd;
+                                $statusLabel = $isActive ? 'Open' : ($isPast ? 'Closed' : 'Upcoming');
+                                $statusClass = $isActive ? 'badge-active' : ($isPast ? 'badge-inactive' : 'badge-other');
+                                $dur = $dtEnd->getTimestamp() - $dtStart->getTimestamp(); 
+                                $h = floor($dur/3600); 
+                                $m = floor(($dur%3600)/60);
                         ?>
-                        <tr>
-                            <td style="font-weight:700;color:#1a3a8f;">
-                                <?= htmlspecialchars($es['School_Year']) ?>
-                            </td>
-                            <td style="font-size:13px;white-space:nowrap;">
-                                <?= htmlspecialchars(is_numeric($es['Time_Start']) ? date('M d, Y H:i', (int)$es['Time_Start']) : str_replace('T', ' ', $es['Time_Start'])) ?>
-                            </td>
-                            <td style="font-size:13px;white-space:nowrap;">
-                                <?= htmlspecialchars(is_numeric($es['Time_End']) ? date('M d, Y H:i', (int)$es['Time_End']) : str_replace('T', ' ', $es['Time_End'])) ?>
-                            </td>
-                            <td><span class="badge-sm <?= $statusClass ?>"><?= $statusLabel ?></span></td>
-                            <td style="font-size:13px;"><?= $h ?>h <?= $m ?>m</td>
-                        </tr>
-                        <?php endforeach; ?>
+                                <tr>
+                                    <td style="font-weight:700;color:#1a3a8f;">
+                                        <?= htmlspecialchars($es['School_Year']) ?>
+                                    </td>
+                                    <td style="font-size:13px;white-space:nowrap;">
+                                        <?= htmlspecialchars(is_numeric($es['Time_Start']) ? date('M d, Y H:i', (int)$es['Time_Start']) : str_replace('T', ' ', $es['Time_Start'])) ?>
+                                    </td>
+                                    <td style="font-size:13px;white-space:nowrap;">
+                                        <?= htmlspecialchars(is_numeric($es['Time_End']) ? date('M d, Y H:i', (int)$es['Time_End']) : str_replace('T', ' ', $es['Time_End'])) ?>
+                                    </td>
+                                    <td><span class="badge-sm <?= $statusClass ?>"><?= $statusLabel ?></span></td>
+                                    <td style="font-size:13px;"><?= $h ?>h <?= $m ?>m</td>
+                                </tr>
+                        <?php
+                            } catch (\Throwable $e) {
+                                error_log('Invalid datetime in localScheds: ' . $e->getMessage());
+                            }
+                        }
+                        ?>
                         </tbody>
                     </table>
                 </div>
@@ -694,44 +706,50 @@ if ($schedStart && $schedEnd) {
                         <tbody>
                         <?php
                         $now = new DateTime();
-                        foreach ($collegeSchedules as $cs):
-                            $tsVal = $cs['Time_Start'];
-                            if (is_numeric($tsVal)) {
-                                $dtStart = (new DateTime())->setTimestamp((int)$tsVal);
-                            } else {
-                                $dtStart = DateTime::createFromFormat('Y-m-d\TH:i', $tsVal) ?: new DateTime($tsVal);
-                            }
-                            $teVal = $cs['Time_End'];
-                            if (is_numeric($teVal)) {
-                                $dtEnd = (new DateTime())->setTimestamp((int)$teVal);
-                            } else {
-                                $dtEnd = DateTime::createFromFormat('Y-m-d\TH:i', $teVal) ?: new DateTime($teVal);
-                            }
-                            $isActive = $now >= $dtStart && $now <= $dtEnd;
-                            $isPast   = $now > $dtEnd;
-                            $statusLabel = $isActive ? 'Open' : ($isPast ? 'Closed' : 'Upcoming');
-                            $statusClass = $isActive ? 'badge-active' : ($isPast ? 'badge-inactive' : 'badge-other');
+                        foreach ($collegeSchedules as $cs) {
+                            try {
+                                $tsVal = $cs['Time_Start'];
+                                if (is_numeric($tsVal)) {
+                                    $dtStart = (new DateTime())->setTimestamp((int)$tsVal);
+                                } else {
+                                    $dtStart = DateTime::createFromFormat('Y-m-d\TH:i', $tsVal) ?: new DateTime($tsVal);
+                                }
+                                $teVal = $cs['Time_End'];
+                                if (is_numeric($teVal)) {
+                                    $dtEnd = (new DateTime())->setTimestamp((int)$teVal);
+                                } else {
+                                    $dtEnd = DateTime::createFromFormat('Y-m-d\TH:i', $teVal) ?: new DateTime($teVal);
+                                }
+                                $isActive = $now >= $dtStart && $now <= $dtEnd;
+                                $isPast   = $now > $dtEnd;
+                                $statusLabel = $isActive ? 'Open' : ($isPast ? 'Closed' : 'Upcoming');
+                                $statusClass = $isActive ? 'badge-active' : ($isPast ? 'badge-inactive' : 'badge-other');
                         ?>
-                        <tr>
-                            <td style="font-weight:700;color:#1a3a8f;max-width:220px;">
-                                <?= htmlspecialchars($cs['College']) ?>
-                            </td>
-                            <td><?= htmlspecialchars($cs['School_Year'] ?? '—') ?></td>
-                            <td style="font-size:13px;white-space:nowrap;">
-                                <?= htmlspecialchars(is_numeric($cs['Time_Start']) ? date('M d, Y H:i', (int)$cs['Time_Start']) : str_replace('T', ' ', $cs['Time_Start'])) ?>
-                            </td>
-                            <td style="font-size:13px;white-space:nowrap;">
-                                <?= htmlspecialchars(is_numeric($cs['Time_End']) ? date('M d, Y H:i', (int)$cs['Time_End']) : str_replace('T', ' ', $cs['Time_End'])) ?>
-                            </td>
-                            <td><span class="badge-sm <?= $statusClass ?>"><?= $statusLabel ?></span></td>
-                            <td style="font-size:12px;color:#9ca3af;">
-                                <?= htmlspecialchars($cs['Saved_At'] ?? '—') ?>
-                            </td>
-                            <td>
-                                <button class="btn btn-red" style="padding:5px 12px;font-size:12px;" onclick="openClearScheduleModal('<?= htmlspecialchars(addslashes($cs['College'])) ?>');">Clear</button>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
+                                <tr>
+                                    <td style="font-weight:700;color:#1a3a8f;max-width:220px;">
+                                        <?= htmlspecialchars($cs['College']) ?>
+                                    </td>
+                                    <td><?= htmlspecialchars($cs['School_Year'] ?? '—') ?></td>
+                                    <td style="font-size:13px;white-space:nowrap;">
+                                        <?= htmlspecialchars(is_numeric($cs['Time_Start']) ? date('M d, Y H:i', (int)$cs['Time_Start']) : str_replace('T', ' ', $cs['Time_Start'])) ?>
+                                    </td>
+                                    <td style="font-size:13px;white-space:nowrap;">
+                                        <?= htmlspecialchars(is_numeric($cs['Time_End']) ? date('M d, Y H:i', (int)$cs['Time_End']) : str_replace('T', ' ', $cs['Time_End'])) ?>
+                                    </td>
+                                    <td><span class="badge-sm <?= $statusClass ?>"><?= $statusLabel ?></span></td>
+                                    <td style="font-size:12px;color:#9ca3af;">
+                                        <?= htmlspecialchars($cs['Saved_At'] ?? '—') ?>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-red" style="padding:5px 12px;font-size:12px;" onclick="openClearScheduleModal('<?= htmlspecialchars(addslashes($cs['College'])) ?>');">Clear</button>
+                                    </td>
+                                </tr>
+                        <?php
+                            } catch (\Throwable $e) {
+                                error_log('Invalid datetime in collegeSchedules: ' . $e->getMessage());
+                            }
+                        }
+                        ?>
                         </tbody>
                     </table>
                 </div>

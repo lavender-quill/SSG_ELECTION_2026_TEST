@@ -79,8 +79,31 @@ if (!headers_sent()) {
 define('ARMS_API_KEY',    getenv('ARMS_API_KEY')    ?: 'asaguin.jr@gmail.com');
 define('ARMS_API_SECRET', getenv('ARMS_API_SECRET') ?: 'D43m0nCh41N');
 
-// ── Data directory — lives outside the web root, never browser-accessible ─────
-define('DATA_DIR', dirname(dirname(__DIR__)) . '/data');
+// ── Data and Log directories for Vercel/Local environment ─────────────────────
+if (getenv('VERCEL')) {
+    define('DATA_DIR', '/tmp/data');
+    define('LOGS_DIR', '/tmp/logs');
+
+    // Seed /tmp/data if not already done in this container instance
+    if (!is_dir(DATA_DIR)) {
+        mkdir(DATA_DIR, 0777, true);
+        $sourceDir = dirname(dirname(__DIR__)) . '/data';
+        if (is_dir($sourceDir)) {
+            $files = scandir($sourceDir);
+            foreach ($files as $file) {
+                if ($file !== '.' && $file !== '..') {
+                    copy("$sourceDir/$file", DATA_DIR . "/$file");
+                }
+            }
+        }
+    }
+    if (!is_dir(LOGS_DIR)) {
+        mkdir(LOGS_DIR, 0777, true);
+    }
+} else {
+    define('DATA_DIR', dirname(dirname(__DIR__)) . '/data');
+    define('LOGS_DIR', dirname(dirname(__DIR__)) . '/logs');
+}
 
 // Load runtime settings (editable from admin panel)
 $_runtimeSettingsFile = DATA_DIR . '/settings.json';
@@ -439,10 +462,9 @@ function loadCollegeSchedules(): array {
  * The log file lives outside the web root and is never browser-accessible.
  */
 function writeVoteAuditLog(string $voterId, string $schoolYear, string $ip): void {
-    $logDir  = dirname(dirname(__DIR__)) . '/logs';
-    $logFile = $logDir . '/vote_audit.log';
-    if (!is_dir($logDir)) {
-        mkdir($logDir, 0750, true);
+    $logFile = LOGS_DIR . '/vote_audit.log';
+    if (!is_dir(LOGS_DIR)) {
+        mkdir(LOGS_DIR, 0750, true);
     }
     $entry = sprintf(
         "[%s] VOTE_CAST voter=%s year=%s ip=%s\n",
